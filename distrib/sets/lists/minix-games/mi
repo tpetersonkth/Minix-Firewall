@@ -17,6 +17,7 @@
 ./usr/games/bcd                                         minix-games
 ./usr/games/caesar                                      minix-games
 ./usr/games/colorbars                                   minix-games
+./usr/games/demo01                                      minix-games
 ./usr/games/factor                                      minix-games
 ./usr/games/fish                                        minix-games
 ./usr/games/fortune                                     minix-games
