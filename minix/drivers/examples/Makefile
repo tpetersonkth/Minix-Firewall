@@ -1,5 +1,5 @@
 .include <bsd.own.mk>
 
-SUBDIR+=	hello
+SUBDIR+=	hello mydriver
 
 .include <bsd.subdir.mk>
