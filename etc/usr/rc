@@ -444,6 +444,9 @@ start)
 	echo .
     fi
 
+    # Start mydriver
+    up -n mydriver -dev /dev/mydriver
+
     # Load the stored hostname into the sysctl database.
     test -r /etc/hostname.file && hostname $(cat /etc/hostname.file)
 
