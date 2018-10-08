@@ -764,9 +764,10 @@
 #define VM_GETRUSAGE		(VM_RQ_BASE+47)
 
 #define VM_RS_PREPARE		(VM_RQ_BASE+48)
+#define VM_PT_DEBUG		(VM_RQ_BASE+49)
 
 /* Total. */
-#define NR_VM_CALLS				49
+#define NR_VM_CALLS				50
 #define VM_CALL_MASK_SIZE			BITMAP_CHUNKS(NR_VM_CALLS)
 
 /* not handled as a normal VM call, thus at the end of the reserved rage */

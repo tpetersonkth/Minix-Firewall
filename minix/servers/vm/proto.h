@@ -52,6 +52,7 @@ int swap_proc_dyn_data(struct vmproc *src_vmp, struct vmproc *dst_vmp,
 int map_proc_dyn_data(struct vmproc *src_vmp, struct vmproc *dst_vmp);
 void adjust_proc_refs(void);
 int do_getrusage(message *m);
+int do_pt_debug(message *m);
 
 /* exit.c */
 void clear_proc(struct vmproc *vmp);
