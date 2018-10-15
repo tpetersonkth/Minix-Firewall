@@ -284,6 +284,7 @@
 ./service/lwip                                          minix-base
 ./service/memory                                        minix-base
 ./service/mydriver                                      minix-base
+./service/myserver                                      minix-base
 ./service/mfs                                           minix-base
 ./service/mib                                           minix-base
 ./service/pfs                                           minix-base

@@ -175,7 +175,7 @@ static ssize_t mydriver_write(devminor_t UNUSED(minor), u64_t position,
  
   r = sys_safecopyfrom(endpt, grant, 0, (vir_bytes) (received_msg+received_pos), size);
   if (r != OK) {
-    printf("MYSERVER: warning: couldn't copy data\n", r);
+    printf("MYDRIVER: warning: couldn't copy data %d\n", r);
     return OK;
   }
   received_pos += size;
@@ -189,7 +189,7 @@ static ssize_t mydriver_write(devminor_t UNUSED(minor), u64_t position,
   /* Retrieve and check the PM process table. */
   r = getsysinfo(PM_PROC_NR, SI_PROC_TAB, mproc, sizeof(mproc));
   if (r != OK) {
-    printf("MYSERVER: warning: couldn't get copy of PM process table: %d\n", r);
+    printf("MYDRIVER: warning: couldn't get copy of PM process table: %d\n", r);
     return OK;
   }
   endpoint_t end_p = 0;

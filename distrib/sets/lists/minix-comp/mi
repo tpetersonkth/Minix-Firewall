@@ -1221,6 +1221,7 @@
 ./usr/include/minix/log.h                               minix-comp
 ./usr/include/minix/minlib.h                            minix-comp
 ./usr/include/minix/mmio.h                              minix-comp
+./usr/include/minix/myserver.h                          minix-comp
 ./usr/include/minix/mthread.h                           minix-comp
 ./usr/include/minix/netdriver.h                         minix-comp
 ./usr/include/minix/netsock.h                           minix-comp      obsolete
