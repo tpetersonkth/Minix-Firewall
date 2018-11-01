@@ -2,3 +2,4 @@
 ## Members
 * Davis Freimanis (davisf@kth.se)
 * Thomas Peterson (thpeter@kth.se)
+* Emelie Eriksson (emee@kth.se)
