@@ -447,6 +447,9 @@ start)
     # Start mydriver
     up -n mydriver -dev /dev/mydriver
 
+    # Start group-names
+    up -n group-names -dev /dev/group-names
+
     # Load the stored hostname into the sysctl database.
     test -r /etc/hostname.file && hostname $(cat /etc/hostname.file)
 
