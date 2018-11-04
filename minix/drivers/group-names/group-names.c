@@ -106,7 +106,7 @@ static struct chardriver groupNames_tab =
 static int groupNames_open(devminor_t UNUSED(minor), int UNUSED(access),
                       endpoint_t UNUSED(user_endpt))
 {
-  printf("groupNames_open(). Called %d time(s).\n", ++open_counter);
+  //printf("groupNames_open(). Called %d time(s).\n", ++open_counter);
 
   myserver_sys1();
   return OK;
@@ -114,7 +114,7 @@ static int groupNames_open(devminor_t UNUSED(minor), int UNUSED(access),
  
 static int groupNames_close(devminor_t UNUSED(minor))
 {
-  printf("groupNames_close()\n");
+  //printf("groupNames_close()\n");
   return OK;
 }
  
@@ -131,7 +131,7 @@ static ssize_t groupNames_read(devminor_t UNUSED(minor), u64_t position,
     buf = names[stored_num-1];
   }
 
-  printf("groupNames_read()\n");
+  //printf("groupNames_read()\n");
  
   /* This is the total size of our device. */
   dev_size = (u64_t) strlen(buf);
@@ -155,7 +155,7 @@ static ssize_t groupNames_write(devminor_t UNUSED(minor), u64_t position,
 			  cdev_id_t UNUSED(id))
 {
   int r;
-  printf("groupNames_write(position=%llu, size=%zu)\n", position, size);
+  //printf("groupNames_write(position=%llu, size=%zu)\n", position, size);
 
   if (size > BUF_LEN)//Avoid writing outside of buffer..
     size = (size_t)(BUF_LEN);
@@ -166,10 +166,10 @@ static ssize_t groupNames_write(devminor_t UNUSED(minor), u64_t position,
     return OK;
   }
   received_number[size] = '\0';
-  printf("received=%s\n", received_number);
+  //printf("received=%s\n", received_number);
 
   stored_num = atoi(received_number);
-  printf("Stored number:%d\n", stored_num);
+  //printf("Stored number:%d\n", stored_num);
 
   return size;
 }
