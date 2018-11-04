@@ -78,8 +78,10 @@
 #define INPUT_MAJOR		  64	/* 64 = /dev/input (input)            */
 #define USB_BASE_MAJOR		  65	/* 65-133 = USB major range	      */
 #define PCI_MAJOR		 134	/* 134 = /dev/pci (pci)            */
+#define GROUPNAME_MAJOR		 135    /* 135 = /dev/group-names (group-names driver) */
 
-#define NR_DEVICES   		 135	/* number of (major) devices */
+#define NR_DEVICES   		 136	/* number of (major) devices */
+
 
 /* Minor device numbers for memory driver. */
 #  define RAM_DEV_OLD  		   0	/* minor device for /dev/ram */

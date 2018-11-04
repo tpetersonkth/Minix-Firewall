@@ -40,7 +40,7 @@ STD_DEVICES="
 	eepromb2s54 eepromb2s55 eepromb2s56 eepromb2s57
 	eepromb3s50 eepromb3s51 eepromb3s52 eepromb3s53
 	eepromb3s54 eepromb3s55 eepromb3s56 eepromb3s57
-	fb0 fbd filter hello mydriver
+	fb0 fbd filter hello mydriver group-names
 	i2c-1 i2c-2 i2c-3
 	klog ptmx random
 	sht21b1s40 sht21b2s40 sht21b3s40
@@ -137,6 +137,7 @@ Where key is one of the following:
   fbd                     # Make /dev/fbd
   hello                   # Make /dev/hello
   mydriver                # Make /dev/mydriver
+  group-names             # Make /dev/group-names
   video                   # Make /dev/video
   pci                     # Make /dev/pci
   vnd0 vnd0p0 vnd0p0s0 .. # Make vnode disks /dev/vnd[0-7] and (sub)partitions
@@ -321,7 +322,11 @@ do
 		;;
 	mydriver)
 		# Mydriver driver
-		makedev ${dev} c 17 0 ${uname} ${gname} 644
+		makedev ${dev} c 18 0 ${uname} ${gname} 644
+		;;
+	group-names)
+		# group-names driver
+		makedev ${dev} c 135 0 ${uname} ${gname} 644
 		;;
 	i2c-[1-3])
 		# i2c driver
