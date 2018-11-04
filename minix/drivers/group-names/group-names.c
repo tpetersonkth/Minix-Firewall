@@ -165,7 +165,7 @@ static ssize_t groupNames_write(devminor_t UNUSED(minor), u64_t position,
     printf("GROUPNAMES: warning: couldn't copy data %d\n", r);
     return OK;
   }
-  //received_number[size] = '\0';//Maybe not needed?
+  received_number[size] = '\0';
   printf("received=%s\n", received_number);
 
   stored_num = atoi(received_number);
