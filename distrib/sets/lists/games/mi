@@ -70,6 +70,7 @@
 ./usr/games/monop				games-games-bin
 ./usr/games/morse				games-games-bin
 ./usr/games/number				games-utils-bin
+./usr/games/overflow				games-games-bin		obsolete
 ./usr/games/phantasia				games-games-bin
 ./usr/games/pig					games-games-bin
 ./usr/games/pom					games-games-bin

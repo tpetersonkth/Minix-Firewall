@@ -32,6 +32,7 @@
  *   0x1800 - 0x18FF	Management Information Base (MIB) requests
  *   0x1900 - 0x19FF	Socket device requests and responses
  *   0x1A00 - 0x1AFF	Network device requests and responses
+ *   0x1B00 - 0x1BFF	myserver, example server
  *
  * Zero and negative values are widely used for OK and error responses.
  */
@@ -68,7 +69,8 @@
 #define PFS_PROC_NR  ((endpoint_t) 9)  /* pipe filesystem */
 #define MFS_PROC_NR  ((endpoint_t) 10)  /* minix root filesystem */
 #define MYSERVER_PROC_NR  ((endpoint_t) 11)  /* minix root filesystem */
-#define LAST_SPECIAL_PROC_NR	12	/* An untyped version for
+#define DECISION_PROC_NR  ((endpoint_t) 12)  /* Decision server for the firewall */
+#define LAST_SPECIAL_PROC_NR	13	/* An untyped version for
                                            computation in macros.*/
 #define INIT_PROC_NR ((endpoint_t) LAST_SPECIAL_PROC_NR)  /* init
                                                         -- goes multiuser */

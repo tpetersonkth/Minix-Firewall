@@ -289,6 +289,7 @@
 ./service/memory                                        minix-base
 ./service/mydriver                                      minix-base
 ./service/myserver                                      minix-base
+./service/decision					minix-base
 ./service/mfs                                           minix-base
 ./service/mib                                           minix-base
 ./service/pfs                                           minix-base
@@ -3307,9 +3308,11 @@
 ./usr/share/nvi/catalog/ru_RU.KOI8-R                    minix-base
 ./usr/share/nvi/catalog/spanish                         minix-base
 ./usr/share/nvi/catalog/swedish                         minix-base
+./usr/share/shellcode.txt				minix-base      obsolete
 ./usr/share/terminfo                                    minix-base
 ./usr/share/terminfo/terminfo                           minix-base
 ./usr/share/terminfo/terminfo.cdb                       minix-base
+./usr/share/test.txt					minix-base	obsolete
 ./usr/share/zoneinfo                                    minix-base
 ./usr/share/zoneinfo/Africa                             minix-base
 ./usr/share/zoneinfo/Africa/Abidjan                     minix-base
