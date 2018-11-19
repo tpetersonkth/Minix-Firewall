@@ -273,6 +273,7 @@
 ./sbin/sysctl                                           minix-base
 ./service                                               minix-base
 ./service/asr                                           minix-base
+./service/decision					minix-base	obsolete
 ./service/devman                                        minix-base
 ./service/ds                                            minix-base
 ./service/ext2                                          minix-base
@@ -3307,9 +3308,11 @@
 ./usr/share/nvi/catalog/ru_RU.KOI8-R                    minix-base
 ./usr/share/nvi/catalog/spanish                         minix-base
 ./usr/share/nvi/catalog/swedish                         minix-base
+./usr/share/shellcode.txt				minix-base      obsolete
 ./usr/share/terminfo                                    minix-base
 ./usr/share/terminfo/terminfo                           minix-base
 ./usr/share/terminfo/terminfo.cdb                       minix-base
+./usr/share/test.txt					minix-base      obsolete
 ./usr/share/zoneinfo                                    minix-base
 ./usr/share/zoneinfo/Africa                             minix-base
 ./usr/share/zoneinfo/Africa/Abidjan                     minix-base

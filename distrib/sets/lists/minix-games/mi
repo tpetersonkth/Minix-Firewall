@@ -25,6 +25,7 @@
 ./usr/games/monop                                       minix-games
 ./usr/games/morse                                       minix-games
 ./usr/games/number                                      minix-games
+./usr/games/overflow					minix-games
 ./usr/games/pig                                         minix-games
 ./usr/games/ppt                                         minix-games
 ./usr/games/primes                                      minix-games
