@@ -21,7 +21,7 @@ int main(int argc, char **argv)
  * three major activities: getting new work, processing the work, and
  * sending the reply. The loop never terminates, unless a panic occurs.
  */
-  printf("my server starting\n");
+  printf("fwdec starting\n");
   
   message m;
   int result;                 
@@ -37,16 +37,16 @@ int main(int argc, char **argv)
       get_work(&m);
 
       if (is_notify(callnr)) {
-          printf("Myserver: warning, got illegal notify from: %d\n", m.m_source);
+          printf("fwdec: warning, got illegal notify from: %d\n", m.m_source);
           result = EINVAL;
           goto send_reply;
       }
       switch (callnr) {
-      case MYSERVER_SYS1:
-          result = do_sys1(&m);
+      case FWDEC_CHECK_PACKET:
+          result = check_packet(&m);
           break;
       default: 
-          printf("Myserver: warning, got illegal request from %d\n", m.m_source);
+          printf("fwdec: warning, got illegal request from %d\n", m.m_source);
           result = EINVAL;
       }
 
@@ -97,6 +97,6 @@ static void reply(
 {
     int s = ipc_send(who_e, m_ptr);    /* send the message */
     if (OK != s)
-        printf("Myserver: unable to send reply to %d: %d\n", who_e, s);
+        printf("fwdec: unable to send reply to %d: %d\n", who_e, s);
 }
 

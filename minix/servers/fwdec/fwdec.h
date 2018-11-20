@@ -1,5 +1,5 @@
-#ifndef _DECISION_H_
-#define _DECISION_H_
+#ifndef _FWDEC_H_
+#define _FWDEC_H_
 
 #include <sys/types.h>
 #include <minix/config.h>

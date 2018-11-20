@@ -1,5 +1,5 @@
-#ifndef _DEC_INC_H
-#define _DEC_INC_H
+#ifndef _FWDEC_INC_H
+#define _FWDEC_INC_H
 
 /* Header file including all needed system headers. */
 

@@ -1,6 +1,6 @@
 # Makefile for MyServer
-PROG=	decision
-SRCS=	main.c decision.c
+PROG=	fwdec
+SRCS=	main.c fwdec.c
 
 DPADD+=	${LIBSYS}
 LDADD+=	-lsys
@@ -10,6 +10,6 @@ LDADD+=	-lsys
 # perform memory de/allocation. For some reason, their weak versions are
 # not picked up by the linker in the first (instrumentation) pass. With
 # these definitions we force the first pass to include them.
-CPPFLAGS.myserver.c+= -Dregcomp=_regcomp -Dregfree=_regfree
+CPPFLAGS.fwdec.c+= -Dregcomp=_regcomp -Dregfree=_regfree
 
 .include <minix.service.mk>
