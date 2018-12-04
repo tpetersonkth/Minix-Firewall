@@ -221,6 +221,14 @@ typedef struct {
 _ASSERT_MSG_SIZE(mess_fs_vfs_readwrite);
 
 typedef struct {
+	int test1;
+	int test2;
+
+	uint8_t padding[48];
+} mess_fw_test;
+_ASSERT_MSG_SIZE(mess_fw_test);
+
+typedef struct {
 	uint8_t padding[56];
 } mess_i2c_li2cdriver_busc_i2c_exec;
 _ASSERT_MSG_SIZE(mess_i2c_li2cdriver_busc_i2c_exec);
@@ -2429,6 +2437,7 @@ typedef struct noxfer_message {
 		mess_fs_vfs_rdlink	m_fs_vfs_rdlink;
 		mess_fs_vfs_readsuper	m_fs_vfs_readsuper;
 		mess_fs_vfs_readwrite	m_fs_vfs_readwrite;
+		mess_fw_test	m_fw_test;
 		mess_i2c_li2cdriver_busc_i2c_exec m_i2c_li2cdriver_busc_i2c_exec;
 		mess_i2c_li2cdriver_busc_i2c_reserve m_i2c_li2cdriver_busc_i2c_reserve;
 		mess_input_linputdriver_input_conf m_input_linputdriver_input_conf;
