@@ -22,8 +22,11 @@ int fwdec_check_packet(void)
 
 	/* Prepare the request message for the firewall */
 	m.m_type = FWDEC_CHECK_PACKET;
-	m.m_fw_test.test1 = 1;
-	m.m_fw_test.test2 = 222;
+	m.m_fw_filter.protocol = 1;
+	m.m_fw_filter.src_ip = 2;
+	m.m_fw_filter.dst_ip = 3;
+	m.m_fw_filter.src_port = 4;
+	m.m_fw_filter.dst_port = 5;
 
 	return do_invoke_fwdec(&m, FWDEC_CHECK_PACKET);
 }
