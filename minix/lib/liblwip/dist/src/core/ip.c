@@ -120,12 +120,14 @@ ip_input(struct pbuf *p, struct netif *inp)
   data = p->payload;
   int * payload = data;
   unsigned char bytes[4];
-  for(int i= 0;i<16;++i){
+  printf("start\n");
+  for(int i= 0;i<6;){
         bytes[3] = *(payload + i) & 0xFF;
         bytes[2] = *(payload + i)>>8 & 0xFF;
         bytes[1] = *(payload + i)>>16 & 0xFF;
         bytes[0] = *(payload + i)>>24 & 0xFF;
-	printf("%d.%d.%d.%d\n",bytes[3],bytes[2],bytes[1],bytes[0]);
+	printf("pointer = %p: %d.%d.%d.%d\n",(void *) (payload+i), bytes[3],bytes[2],bytes[1],bytes[0]);
+	i = i+1;
   }
  /* struct ip4_addr_packed dst;
   struct ip4_addr_packed src;
