@@ -53,8 +53,9 @@ int main(int argc, char **argv)
 send_reply:
       /* Finally send reply message, unless disabled. */
       if (result != EDONTREPLY) {
-          m.m_type = result;  		/* build reply message */
-	  reply(who_e, &m);		/* send it away */
+          printf("[FWDEC] Replying to check packet request");
+          m.m_type = LWIP_DROP_PACKET;  		/* build reply message */
+          reply(who_e, &m);		/* send it away */
       }
   }
   return(OK);				/* shouldn't come here */
