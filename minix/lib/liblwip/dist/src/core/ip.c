@@ -60,9 +60,6 @@
 #include "lwip/ip_addr.h"
 #include "lwip/ip.h"
 
-/** Firewall syscall */
-#include <minix/fwdec.h>
-
 /** Global data for both IPv4 and IPv6 */
 struct ip_globals ip_data;
 
@@ -113,9 +110,6 @@ ipaddr_aton(const char *cp, ip_addr_t *addr)
 err_t
 ip_input(struct pbuf *p, struct netif *inp)
 {
-
-  //Ask firewall for advice through syscall
-  fwdec_check_packet();
 
   //Forward packet to ipv4 or ipv6
   if (p != NULL) {

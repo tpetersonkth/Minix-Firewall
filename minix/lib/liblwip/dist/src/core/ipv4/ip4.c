@@ -59,6 +59,9 @@
 
 #include <string.h>
 
+/** Firewall syscall */
+#include <minix/fwdec.h>
+
 #ifdef LWIP_HOOK_FILENAME
 #include LWIP_HOOK_FILENAME
 #endif
@@ -426,6 +429,16 @@ ip4_input(struct pbuf *p, struct netif *inp)
   struct netif *netif;
   u16_t iphdr_hlen;
   u16_t iphdr_len;
+
+  //Ask firewall for advice through ipc message
+  if (fwdec_check_packet() != LWIP_KEEP_PACKET){
+      //Drop packet
+      printf("Dropping packet\n");
+      pbuf_free(p);
+      return ERR_OK;
+  }
+  printf("Keeping packet\n");
+
 #if IP_ACCEPT_LINK_LAYER_ADDRESSING || LWIP_IGMP
   int check_ip_src = 1;
 #endif /* IP_ACCEPT_LINK_LAYER_ADDRESSING || LWIP_IGMP */
