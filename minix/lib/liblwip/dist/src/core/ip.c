@@ -110,10 +110,31 @@ ipaddr_aton(const char *cp, ip_addr_t *addr)
 err_t
 ip_input(struct pbuf *p, struct netif *inp)
 {
+  printf("%p\n",(void *) &p);
   if (p != NULL) {
+	
     if (IP_HDR_GET_VERSION(p->payload) == 6) {
       return ip6_input(p, inp);
     }
+  void *data;
+  data = p->payload;
+  int * payload = data;
+  unsigned char bytes[4];
+  for(int i= 0;i<16;++i){
+        bytes[3] = *(payload + i) & 0xFF;
+        bytes[2] = *(payload + i)>>8 & 0xFF;
+        bytes[1] = *(payload + i)>>16 & 0xFF;
+        bytes[0] = *(payload + i)>>24 & 0xFF;
+	printf("%d.%d.%d.%d\n",bytes[3],bytes[2],bytes[1],bytes[0]);
+  }
+ /* struct ip4_addr_packed dst;
+  struct ip4_addr_packed src;
+  struct ip4_addr_t test1 = dst;
+  struct ip4_addr_t test2 = srt;
+  dst = iphdr->dest;
+  dst = iphdr->src;
+  printf("%lu",dst);
+  printf("%lu",src);*/
     return ip4_input(p, inp);
   }
   return ERR_VAL;
