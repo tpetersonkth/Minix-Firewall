@@ -1166,6 +1166,15 @@
 #define FWDEC_CHECK_PACKET 	(FWDEC_BASE + 0)	/* Drop packet or not */
 
 /*===========================================================================*
+*		Messages for the LWIP server		     *
+*============================================================================*/
+
+#define LWIP_BASE 0X1D00
+
+#define LWIP_KEEP_PACKET 	(FWDEC_BASE + 0)	/* Do not drop the packet */
+#define LWIP_DROP_PACKET 	(FWDEC_BASE + 1)	/* Drop the packet */
+
+/*===========================================================================*
  *		Internal codes used by several services			     *
  *===========================================================================*/
 

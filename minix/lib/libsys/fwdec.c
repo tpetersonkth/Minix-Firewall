@@ -9,7 +9,23 @@ static int do_invoke_fwdec(message *m, int type)
 {
 	int r;
 
-	r = _taskcall(FWDEC_PROC_NR, type, m);
+	//r = _taskcall(FWDEC_PROC_NR, type, m);
+
+	printf("Sending packet from %d, type: %d",m->m_source,m->m_type);
+   	r = ipc_sendrec(FWDEC_PROC_NR,m);
+   	printf("r=%d\n",r);
+   	printf("Received packet from %d, type: %d",m->m_source,m->m_type);
+	switch (m->m_type) {
+		case LWIP_KEEP_PACKET:
+			printf("Keeping packet\n");
+			break;
+		case LWIP_DROP_PACKET:
+			printf("Dropping packet\n");
+			break;
+		default:
+			printf("lwip: warning, got illegal request from %d\n", m->m_source);
+			r = EINVAL;
+	}
 
 	return r;
 }
