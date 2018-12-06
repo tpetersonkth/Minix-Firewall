@@ -121,6 +121,11 @@ ip_input(struct pbuf *p, struct netif *inp)
   int * payload = data;
   unsigned char bytes[4];
   printf("start\n");
+  unsigned int hlen = (*payload) & 0xF;
+  unsigned int srcprt =*(payload+hlen)& 0xFFFF0000;
+  unsigned int dstprt =*(payload+hlen)& 0xFFFF;
+  printf("ipheader length:%d,srcprt:%d,dstprt:%d \n",hlen,srcprt,dstprt);
+  printf("pointer + hlen = %p, pointer = %p\n",(void *) (payload+hlen),(void *) (payload));
   for(int i= 0;i<6;){
         bytes[3] = *(payload + i) & 0xFF;
         bytes[2] = *(payload + i)>>8 & 0xFF;
