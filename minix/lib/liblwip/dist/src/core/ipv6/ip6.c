@@ -524,7 +524,7 @@ ip6_input(struct pbuf *p, struct netif *inp)
   u16_t hlen; /* the current header length */
 
   //Ask firewall for advice through ipc message
-  if (fwdec_check_packet() != LWIP_KEEP_PACKET){
+  if (fwdec_check_packet(6,6,6,6,6) != LWIP_KEEP_PACKET){
       //Drop packet
       pbuf_free(p);
       return ERR_OK;

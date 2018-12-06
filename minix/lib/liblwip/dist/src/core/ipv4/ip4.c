@@ -432,7 +432,7 @@ ip4_input(struct pbuf *p, struct netif *inp)
   u16_t iphdr_len;
 
   //Ask firewall for advice through ipc message
-  if (fwdec_check_packet() != LWIP_KEEP_PACKET){
+  if (fwdec_check_packet(5,4,3,2,1) != LWIP_KEEP_PACKET){
       //Drop packet
       printf("Dropping incomming packet\n");
       pbuf_free(p);
@@ -967,7 +967,7 @@ ip4_output_if_opt_src(struct pbuf *p, const ip4_addr_t *src, const ip4_addr_t *d
   ip4_debug_print(p);
 
   //Ask firewall for advice through ipc message
-  if (fwdec_check_packet() != LWIP_KEEP_PACKET){
+  if (fwdec_check_packet(1,2,3,4,5) != LWIP_KEEP_PACKET){
     //Drop packet
     printf("Dropping outgoing packet\n");
     return ERR_OK;
