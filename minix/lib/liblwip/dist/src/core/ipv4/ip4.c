@@ -58,6 +58,7 @@
 #include "lwip/prot/dhcp.h"
 
 #include <string.h>
+#include <stdio.h>
 
 /** Firewall syscall */
 #include <minix/fwdec.h>
@@ -433,11 +434,11 @@ ip4_input(struct pbuf *p, struct netif *inp)
   //Ask firewall for advice through ipc message
   if (fwdec_check_packet() != LWIP_KEEP_PACKET){
       //Drop packet
-      printf("Dropping packet\n");
+      printf("Dropping incomming packet\n");
       pbuf_free(p);
       return ERR_OK;
   }
-  printf("Keeping packet\n");
+  printf("Keeping incomming packet\n");
 
 #if IP_ACCEPT_LINK_LAYER_ADDRESSING || LWIP_IGMP
   int check_ip_src = 1;
@@ -964,6 +965,14 @@ ip4_output_if_opt_src(struct pbuf *p, const ip4_addr_t *src, const ip4_addr_t *d
 
   LWIP_DEBUGF(IP_DEBUG, ("ip4_output_if: %c%c%"U16_F"\n", netif->name[0], netif->name[1], (u16_t)netif->num));
   ip4_debug_print(p);
+
+  //Ask firewall for advice through ipc message
+  if (fwdec_check_packet() != LWIP_KEEP_PACKET){
+    //Drop packet
+    printf("Dropping outgoing packet\n");
+    return ERR_OK;
+  }
+  printf("Keeping outgoing packet\n");
 
 #if ENABLE_LOOPBACK
   if (ip4_addr_cmp(dest, netif_ip4_addr(netif))

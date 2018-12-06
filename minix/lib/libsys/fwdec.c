@@ -9,10 +9,13 @@ static int do_invoke_fwdec(message *m, int type)//TODO remove type parameter
 {
 	int r;
 
-	//r = _taskcall(FWDEC_PROC_NR, type, m);
-
+	/*
+	 * Sending IPC message to fwdec server
+	 * Returns a message with type LWIP_KEEP_PACKET or LWIP_DROP_PACKET
+	 */
    	ipc_sendrec(FWDEC_PROC_NR,m);//TODO: handle errors
-	switch (m->m_type) {
+
+   	switch (m->m_type) {
 		case LWIP_KEEP_PACKET:
 		    r = LWIP_KEEP_PACKET;
 			break;
@@ -29,7 +32,6 @@ static int do_invoke_fwdec(message *m, int type)//TODO remove type parameter
 
 int fwdec_check_packet(void)
 {
-	printf("libsys/fwdec_check_packet\n");
 	message m;
 	memset(&m, 0, sizeof(m));
 
