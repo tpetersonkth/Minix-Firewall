@@ -116,17 +116,44 @@ ip_input(struct pbuf *p, struct netif *inp)
     if (IP_HDR_GET_VERSION(p->payload) == 6) {
       return ip6_input(p, inp);
     }
+    checkPacket(p);
+    return ip4_input(p, inp);
+  }
+  return ERR_VAL;
+}
+int
+checkPacket(struct pbuf *p){
   void *data;
   data = p->payload;
   int * payload = data;
-  unsigned char bytes[4];
-  printf("start\n");
+  //unsigned char bytes[4];
+  //printf("start\n");
   unsigned int hlen = (*payload) & 0xF;
   unsigned int srcprt =*(payload+hlen) & 0xFF;
   unsigned int srcprt2 =*(payload+hlen)>>8 & 0xFF;
   unsigned int dstprt =*(payload+hlen)>>16 & 0xFF;
   unsigned int dstprt2 =*(payload+hlen)>>24 & 0xFF;
-  printf("ipheader length:%d,srcprt:%d,dstprt:%d, \n",hlen,srcprt*16+srcprt2,dstprt*16+dstprt2);
+
+  unsigned int srcIp = *(payload + 3);
+  unsigned int dstIp = *(payload + 4);
+  dstprt = (dstprt<<4) +dstprt2;
+  srcprt = (srcprt<<4) +srcprt2;
+  //printf("srcprt:%d,dstprt%d\n",srcprt,dstprt);
+  dstIp =((dstIp>>24)&0xFF)|((dstIp<<8)&0xFF0000)|((dstIp>>8)&0xff00)|((dstIp<<24)&0xFF000000);
+    /*  bytes[3] = *(&dstIp)  & 0xFF;
+        bytes[2] = *(&dstIp)>>8 & 0xFF;
+        bytes[1] = *(&dstIp)>>16 & 0xFF;
+        bytes[0] = *(&dstIp)>>24 & 0xFF;
+	printf("%d.%d.%d.%d intval: %d\n",bytes[3],bytes[2],bytes[1],bytes[0],dstIp);
+    */
+   srcIp =((srcIp>>24)&0xFF)|((srcIp<<8)&0xFF0000)|((srcIp>>8)&0xff00)|((srcIp<<24)&0xFF000000);
+     /*   bytes[3] = *(&srcIp)  & 0xFF;
+        bytes[2] = *(&srcIp)>>8 & 0xFF;
+        bytes[1] = *(&srcIp)>>16 & 0xFF;
+        bytes[0] = *(&srcIp)>>24 & 0xFF;
+	printf("%d.%d.%d.%d intval: %d\n",bytes[3],bytes[2],bytes[1],bytes[0],srcIp);
+     */
+  /*printf("ipheader length:%d,srcprt:%d,dstprt:%d, \n",hlen,srcprt*16+srcprt2,dstprt*16+dstprt2);
   printf("pointer + hlen = %p, pointer = %p\n",(void *) (payload+hlen),(void *) (payload));
   for(int i= 0;i<6;){
         bytes[3] = *(payload + i) & 0xFF;
@@ -135,18 +162,8 @@ ip_input(struct pbuf *p, struct netif *inp)
         bytes[0] = *(payload + i)>>24 & 0xFF;
 	printf("pointer = %p: %d.%d.%d.%d\n",(void *) (payload+i), bytes[3],bytes[2],bytes[1],bytes[0]);
 	i = i+1;
-  }
- /* struct ip4_addr_packed dst;
-  struct ip4_addr_packed src;
-  struct ip4_addr_t test1 = dst;
-  struct ip4_addr_t test2 = srt;
-  dst = iphdr->dest;
-  dst = iphdr->src;
-  printf("%lu",dst);
-  printf("%lu",src);*/
-    return ip4_input(p, inp);
-  }
-  return ERR_VAL;
+  }*/
+return 0;
 }
 
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
