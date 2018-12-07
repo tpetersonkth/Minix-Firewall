@@ -24,6 +24,7 @@ int check_packet(message *m_ptr)
   u16_t dst_port = m_ptr->m_fw_filter.dst_port;
   //printf("Invoked check packet with id: %d\n", m_ptr->m_type);
   //printf("Protocol: %d\nIP Source: %d\nIP Destination %d\nSource Port %d\nDestination Port %d\n", protocol, src_ip, dst_ip, src_port, dst_port);
+  printf("%d %d %d %d %d\n", protocol, src_ip, dst_ip, src_port, dst_port);
   return(OK);
 }
 

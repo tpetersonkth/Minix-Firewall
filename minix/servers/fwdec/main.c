@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 send_reply:
       /* Finally send reply message, unless disabled. */
       if (result != EDONTREPLY) {
-          m.m_type = LWIP_DROP_PACKET;  		/* build reply message */
+          m.m_type = LWIP_KEEP_PACKET;  		/* build reply message */
           reply(who_e, &m);		/* send it away */
       }
   }
