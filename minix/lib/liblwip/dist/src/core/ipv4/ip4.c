@@ -58,7 +58,6 @@
 #include "lwip/prot/dhcp.h"
 
 #include <string.h>
-#include <stdio.h>
 
 /** Firewall syscall */
 #include <minix/fwdec.h>
@@ -113,6 +112,7 @@ static u16_t ip_id;
 #if LWIP_MULTICAST_TX_OPTIONS
 /** The default netif used for multicast */
 static struct netif* ip4_default_multicast_netif;
+void pbuf_filter(struct pbuf *p);
 
 /**
  * @ingroup ip4
@@ -431,14 +431,7 @@ ip4_input(struct pbuf *p, struct netif *inp)
   u16_t iphdr_hlen;
   u16_t iphdr_len;
 
-  //Ask firewall for advice through ipc message
-  if (fwdec_check_packet(5,4,3,2,1) != LWIP_KEEP_PACKET){
-      //Drop packet
-      printf("Dropping incomming packet\n");
-      pbuf_free(p);
-      return ERR_OK;
-  }
-  printf("Keeping incomming packet\n");
+  pbuf_filter(p);
 
 #if IP_ACCEPT_LINK_LAYER_ADDRESSING || LWIP_IGMP
   int check_ip_src = 1;
@@ -966,13 +959,7 @@ ip4_output_if_opt_src(struct pbuf *p, const ip4_addr_t *src, const ip4_addr_t *d
   LWIP_DEBUGF(IP_DEBUG, ("ip4_output_if: %c%c%"U16_F"\n", netif->name[0], netif->name[1], (u16_t)netif->num));
   ip4_debug_print(p);
 
-  //Ask firewall for advice through ipc message
-  if (fwdec_check_packet(1,2,3,4,5) != LWIP_KEEP_PACKET){
-    //Drop packet
-    printf("Dropping outgoing packet\n");
-    return ERR_OK;
-  }
-  printf("Keeping outgoing packet\n");
+  pbuf_filter(p);
 
 #if ENABLE_LOOPBACK
   if (ip4_addr_cmp(dest, netif_ip4_addr(netif))
@@ -1122,5 +1109,23 @@ ip4_debug_print(struct pbuf *p)
   LWIP_DEBUGF(IP_DEBUG, ("+-------------------------------+\n"));
 }
 #endif /* IP_DEBUG */
+
+/*
+ * Filter function for the firewall server
+ * Extracts the IP, port and protocol of a pbuf
+ * Sends the data to the fwdec server
+ *
+ * TODO: Move to a separate file
+ */
+void pbuf_filter(struct pbuf *p)
+{
+  //Ask firewall for advice through ipc message
+  if (fwdec_check_packet(1,2,3,4,5) != LWIP_KEEP_PACKET){
+      //Drop packet
+      printf("Dropping incomming packet\n");
+      pbuf_free(p);
+  }
+  printf("Keeping incomming packet\n");
+}
 
 #endif /* LWIP_IPV4 */
