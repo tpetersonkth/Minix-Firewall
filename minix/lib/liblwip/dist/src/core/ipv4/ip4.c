@@ -39,6 +39,7 @@
  */
 
 #include "lwip/opt.h"
+#include "lwip/firewall.h"
 
 #if LWIP_IPV4
 
@@ -112,7 +113,6 @@ static u16_t ip_id;
 #if LWIP_MULTICAST_TX_OPTIONS
 /** The default netif used for multicast */
 static struct netif* ip4_default_multicast_netif;
-void pbuf_filter(struct pbuf *p);
 
 /**
  * @ingroup ip4
@@ -1110,22 +1110,5 @@ ip4_debug_print(struct pbuf *p)
 }
 #endif /* IP_DEBUG */
 
-/*
- * Filter function for the firewall server
- * Extracts the IP, port and protocol of a pbuf
- * Sends the data to the fwdec server
- *
- * TODO: Move to a separate file
- */
-void pbuf_filter(struct pbuf *p)
-{
-  //Ask firewall for advice through ipc message
-  if (fwdec_check_packet(1,2,3,4,5) != LWIP_KEEP_PACKET){
-      //Drop packet
-      printf("Dropping incomming packet\n");
-      pbuf_free(p);
-  }
-  printf("Keeping incomming packet\n");
-}
 
 #endif /* LWIP_IPV4 */
