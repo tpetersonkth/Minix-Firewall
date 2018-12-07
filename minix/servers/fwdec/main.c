@@ -1,5 +1,13 @@
 #include "inc.h"	/* include master header file */
 #include <minix/endpoint.h>
+#include <stdlib.h>
+
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
+
+//needed?
+//#include "ntlm.h"
 
 /* Allocate space for the global variables. */
 static endpoint_t who_e;	/* caller's proc number */
@@ -8,6 +16,8 @@ static int callnr;		/* system call number */
 /* Declare some local functions. */
 static void get_work(message *m_ptr);
 static void reply(endpoint_t whom, message *m_ptr);
+static uint32_t stringToIp(char *string);
+static void ipToString(uint32_t ip, char *outBuf);
 
 /* SEF functions and variables. */
 static void sef_local_startup(void);
@@ -49,6 +59,9 @@ int main(int argc, char **argv)
           printf("fwdec: warning, got illegal request from %d\n", m.m_source);
           result = EINVAL;
       }
+      char p[16];
+      ipToString(stringToIp("120.121.122.123"),p);
+      //printf("Final IP: %s\n",p);
 
 send_reply:
       /* Finally send reply message, unless disabled. */
@@ -100,3 +113,55 @@ static void reply(
         printf("fwdec: unable to send reply to %d: %d\n", who_e, s);
 }
 
+/*===========================================================================*
+ *				ip format conversion					     *
+ *===========================================================================*/
+static void ipToString(uint32_t ip, char *outBuf){
+    //Note, the caller has to ensure that the size of ipStr is >= 15
+
+    char strIp[4][4] = {'\0','\0','\0','\0'};
+
+    for(int i = 0; i <= 3; i++){
+        uint32_t tmp = (ip&(0x000000FF<<(3-i)*8))>>8*(3-i);
+        snprintf(strIp[i], sizeof(strIp[i]),"%d", tmp);
+    }
+
+    snprintf(outBuf, sizeof(outBuf),"%s.%s.%s.%s",strIp[0],strIp[1],strIp[2],strIp[3]);
+
+
+}
+
+static uint32_t stringToIp(char *string){//TODO Documentation
+
+    uint32_t ip = 0;
+    char strIp[4][4] = {'\0','\0','\0','\0'};
+    int i1 = 0;
+    int i2 = 0;
+
+    while(*string!='\0'){
+        if (*string=='.'){
+            strIp[i1][i2] = '\0';
+            i1++;
+            i2=0;
+            if (i1 > 3){//The supplied ip was to long
+                break;
+            }
+        }
+        else{
+            strIp[i1][i2] = *string;
+            i2++;
+            if(i2>3){//Ip is of wrong format
+                break;
+            }
+        }
+        string++;
+    }
+    strIp[i1][i2] = '\0';
+
+    for(int i = 0; i<= 3; i++){
+        uint32_t tmp = atoi(strIp[i]);
+        ip |= (tmp << (3-i)*8);
+    }
+
+    return ip;
+}
