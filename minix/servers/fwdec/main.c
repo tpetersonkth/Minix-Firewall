@@ -17,7 +17,7 @@ static int callnr;		/* system call number */
 static void get_work(message *m_ptr);
 static void reply(endpoint_t whom, message *m_ptr);
 static uint32_t stringToIp(char *string);
-static void ipToString(uint32_t ip, char *outBuf);
+static void ipToString(uint32_t ip, char *outBuf, int bufLen);
 
 /* SEF functions and variables. */
 static void sef_local_startup(void);
@@ -59,11 +59,12 @@ int main(int argc, char **argv)
           printf("fwdec: warning, got illegal request from %d\n", m.m_source);
           result = EINVAL;
       }
-      char p[16];
-      ipToString(stringToIp("120.121.122.123"),p);
+      //char p[16];
+      //ipToString(stringToIp("120.121.122.123"),p,16);
       //printf("Final IP: %s\n",p);
 
 send_reply:
+      memset(&m,0, sizeof(m));
       /* Finally send reply message, unless disabled. */
       if (result != EDONTREPLY) {
           m.m_type = LWIP_KEEP_PACKET;  		/* build reply message */
@@ -116,23 +117,21 @@ static void reply(
 /*===========================================================================*
  *				ip format conversion					     *
  *===========================================================================*/
-static void ipToString(uint32_t ip, char *outBuf){
-    //Note, the caller has to ensure that the size of ipStr is >= 15
+static void ipToString(uint32_t ip, char *outBuf, int bufLen){
+    //Converts an IP in uint32 format to a printable format
+    //Note, the caller has to ensure that the size of outBuf is >= 15
 
     char strIp[4][4] = {'\0','\0','\0','\0'};
 
     for(int i = 0; i <= 3; i++){
         uint32_t tmp = (ip&(0x000000FF<<(3-i)*8))>>8*(3-i);
-        snprintf(strIp[i], sizeof(strIp[i]),"%d", tmp);
+        snprintf(strIp[i], 4,"%d", tmp);
     }
-
-    snprintf(outBuf, sizeof(outBuf),"%s.%s.%s.%s",strIp[0],strIp[1],strIp[2],strIp[3]);
-
-
+    snprintf(outBuf, bufLen,"%s.%s.%s.%s",strIp[0],strIp[1],strIp[2],strIp[3]);
 }
 
 static uint32_t stringToIp(char *string){//TODO Documentation
-
+    //Converts an IP in string format, f.e "127.0.0.1" to a uint32
     uint32_t ip = 0;
     char strIp[4][4] = {'\0','\0','\0','\0'};
     int i1 = 0;
