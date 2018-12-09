@@ -1203,6 +1203,7 @@
 ./usr/include/minix/fb.h                                minix-comp
 ./usr/include/minix/fsdriver.h                          minix-comp
 ./usr/include/minix/fslib.h                             minix-comp
+./usr/include/minix/fwdec.h				minix-comp
 ./usr/include/minix/gcov.h                              minix-comp
 ./usr/include/minix/gpio.h                              minix-comp
 ./usr/include/minix/hash.h                              minix-comp

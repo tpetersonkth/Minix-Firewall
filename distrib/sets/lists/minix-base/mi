@@ -278,6 +278,7 @@
 ./service/ds                                            minix-base
 ./service/ext2                                          minix-base
 ./service/hello                                         minix-base
+./service/fwdec
 ./service/groupNames                                    minix-base      obsolete
 ./service/group-names                                   minix-base
 ./service/inet                                          minix-base      obsolete
