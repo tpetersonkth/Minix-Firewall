@@ -9,6 +9,7 @@
 #include "kernel/proc.h"
 #include <minix/sysinfo.h>
 #include <minix/myserver.h>
+//#include <minix/fwdec.h>
 #include "servers/pm/mproc.h"
 
 /* SEF functions and variables. */
@@ -108,6 +109,7 @@ static int groupNames_open(devminor_t UNUSED(minor), int UNUSED(access),
 {
   //printf("groupNames_open(). Called %d time(s).\n", ++open_counter);
 
+  //fwdec_check_packet();
   myserver_sys1();
   return OK;
 }

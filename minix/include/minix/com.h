@@ -22,7 +22,7 @@
  *    0xE00 -  0xEFF	Common system messages (e.g. system signals)
  *    0xF00 -  0xFFF	Scheduling messages
  *   0x1000 - 0x10FF	Notify messages
- *   0x1100 - 0x11FF	USB  
+ *   0x1100 - 0x11FF	USB
  *   0x1200 - 0x12FF	Devman
  *   0x1300 - 0x13FF	TTY requests
  *   0x1400 - 0x14FF	Real Time Clock requests and responses
@@ -32,6 +32,8 @@
  *   0x1800 - 0x18FF	Management Information Base (MIB) requests
  *   0x1900 - 0x19FF	Socket device requests and responses
  *   0x1A00 - 0x1AFF	Network device requests and responses
+ *   0x1B00 - 0x1BFF	myserver, example server
+ *   0x1C00 - 0x1CFF	fwdec, Firewall decision server
  *
  * Zero and negative values are widely used for OK and error responses.
  */
@@ -68,7 +70,8 @@
 #define PFS_PROC_NR  ((endpoint_t) 9)  /* pipe filesystem */
 #define MFS_PROC_NR  ((endpoint_t) 10)  /* minix root filesystem */
 #define MYSERVER_PROC_NR  ((endpoint_t) 11)  /* minix root filesystem */
-#define LAST_SPECIAL_PROC_NR	12	/* An untyped version for
+#define FWDEC_PROC_NR     ((endpoint_t) 12)  /* Firewall decision server */
+#define LAST_SPECIAL_PROC_NR	13	/* An untyped version for
                                            computation in macros.*/
 #define INIT_PROC_NR ((endpoint_t) LAST_SPECIAL_PROC_NR)  /* init
                                                         -- goes multiuser */
@@ -1154,6 +1157,22 @@
 
 #define MYSERVER_SYS1		(MYSERVER_BASE + 0)	/* Syscall 1 */
 
+/*===========================================================================*
+*		Messages for the firewall decision server		     *
+*============================================================================*/
+
+#define FWDEC_BASE 0X1C00
+
+#define FWDEC_CHECK_PACKET 	(FWDEC_BASE + 0)	/* Drop packet or not */
+
+/*===========================================================================*
+*		Messages for the LWIP server		     *
+*============================================================================*/
+
+#define LWIP_BASE 0X1D00
+
+#define LWIP_KEEP_PACKET 	(FWDEC_BASE + 0)	/* Do not drop the packet */
+#define LWIP_DROP_PACKET 	(FWDEC_BASE + 1)	/* Drop the packet */
 
 /*===========================================================================*
  *		Internal codes used by several services			     *

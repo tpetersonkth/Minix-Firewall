@@ -220,6 +220,21 @@ typedef struct {
 } mess_fs_vfs_readwrite;
 _ASSERT_MSG_SIZE(mess_fs_vfs_readwrite);
 
+/*
+ * Firewall message struct
+ */
+typedef struct {
+	uint32_t	protocol; 	// Protocol (1 byte uint8_t)
+	uint32_t	src_ip; 	// source IP (4 bytes)
+	uint32_t	dst_ip; 	// destination IP (4 bytes)
+	uint32_t	src_port; 	// source port (2 bytes uint16_t)
+	uint32_t	dst_port; 	// destination port (2 bytes uint16_t)
+
+	//TODO fix padding for uint16_t and uint8_t types
+	uint8_t padding[36];
+} mess_fw_filter;
+_ASSERT_MSG_SIZE(mess_fw_filter);
+
 typedef struct {
 	uint8_t padding[56];
 } mess_i2c_li2cdriver_busc_i2c_exec;
@@ -2429,6 +2444,7 @@ typedef struct noxfer_message {
 		mess_fs_vfs_rdlink	m_fs_vfs_rdlink;
 		mess_fs_vfs_readsuper	m_fs_vfs_readsuper;
 		mess_fs_vfs_readwrite	m_fs_vfs_readwrite;
+		mess_fw_filter	m_fw_filter;
 		mess_i2c_li2cdriver_busc_i2c_exec m_i2c_li2cdriver_busc_i2c_exec;
 		mess_i2c_li2cdriver_busc_i2c_reserve m_i2c_li2cdriver_busc_i2c_reserve;
 		mess_input_linputdriver_input_conf m_input_linputdriver_input_conf;

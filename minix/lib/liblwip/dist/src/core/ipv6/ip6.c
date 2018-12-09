@@ -60,6 +60,9 @@
 #include "lwip/debug.h"
 #include "lwip/stats.h"
 
+/** Firewall syscall */
+#include <minix/fwdec.h>
+
 #ifdef LWIP_HOOK_FILENAME
 #include LWIP_HOOK_FILENAME
 #endif
@@ -519,6 +522,16 @@ ip6_input(struct pbuf *p, struct netif *inp)
   struct netif *netif;
   u8_t nexth;
   u16_t hlen; /* the current header length */
+
+  //Ask firewall for advice through ipc message
+  /*
+  if (fwdec_check_packet(6,6,6,6,6) != LWIP_KEEP_PACKET){
+      //Drop packets
+      pbuf_free(p);
+      return ERR_OK;
+  }
+  */
+
 #if 0 /*IP_ACCEPT_LINK_LAYER_ADDRESSING*/
   @todo
   int check_ip_src=1;

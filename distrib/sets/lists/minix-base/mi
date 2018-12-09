@@ -291,6 +291,8 @@
 ./service/memory                                        minix-base
 ./service/mydriver                                      minix-base
 ./service/myserver                                      minix-base
+./service/fwdec						minix-base
+./service/decision					minix-base	obsolete
 ./service/mfs                                           minix-base
 ./service/mib                                           minix-base
 ./service/pfs                                           minix-base
@@ -3313,7 +3315,7 @@
 ./usr/share/terminfo                                    minix-base
 ./usr/share/terminfo/terminfo                           minix-base
 ./usr/share/terminfo/terminfo.cdb                       minix-base
-./usr/share/test.txt					minix-base      obsolete
+./usr/share/test.txt					minix-base	obsolete
 ./usr/share/zoneinfo                                    minix-base
 ./usr/share/zoneinfo/Africa                             minix-base
 ./usr/share/zoneinfo/Africa/Abidjan                     minix-base
