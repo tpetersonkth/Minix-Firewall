@@ -271,7 +271,6 @@ extern struct ip_globals ip_data;
 #define ip_debug_print(is_ipv6, p) ((is_ipv6) ? ip6_debug_print(p) : ip4_debug_print(p))
 
 err_t ip_input(struct pbuf *p, struct netif *inp);
-int checkPacket(struct pbuf *p);
 
 #elif LWIP_IPV4 /* LWIP_IPV4 && LWIP_IPV6 */
 
