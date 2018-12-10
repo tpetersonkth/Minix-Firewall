@@ -6,18 +6,13 @@
 #include <string.h>
 #include <stdarg.h>
 
-//needed?
-//#include "ntlm.h"
-
 /* Allocate space for the global variables. */
 static endpoint_t who_e;	/* caller's proc number */
 static int callnr;		/* system call number */
 
-/* Declare some local functions. */
+/* Declare local functions. */
 static void get_work(message *m_ptr);
 static void reply(endpoint_t whom, message *m_ptr);
-static uint32_t stringToIp(char *string);
-static void ipToString(uint32_t ip, char *outBuf, int bufLen);
 
 /* SEF functions and variables. */
 static void sef_local_startup(void);
@@ -112,55 +107,4 @@ static void reply(
     int s = ipc_send(who_e, m_ptr);    /* send the message */
     if (OK != s)
         printf("fwdec: unable to send reply to %d: %d\n", who_e, s);
-}
-
-/*===========================================================================*
- *				ip format conversion					     *
- *===========================================================================*/
-static void ipToString(uint32_t ip, char *outBuf, int bufLen){
-    //Converts an IP in uint32 format to a printable format
-    //Note, the caller has to ensure that the size of outBuf is >= 15
-
-    char strIp[4][4] = {'\0','\0','\0','\0'};
-
-    for(int i = 0; i <= 3; i++){
-        uint32_t tmp = (ip&(0x000000FF<<(3-i)*8))>>8*(3-i);
-        snprintf(strIp[i], 4,"%d", tmp);
-    }
-    snprintf(outBuf, bufLen,"%s.%s.%s.%s",strIp[0],strIp[1],strIp[2],strIp[3]);
-}
-
-static uint32_t stringToIp(char *string){//TODO Documentation
-    //Converts an IP in string format, f.e "127.0.0.1" to a uint32
-    uint32_t ip = 0;
-    char strIp[4][4] = {'\0','\0','\0','\0'};
-    int i1 = 0;
-    int i2 = 0;
-
-    while(*string!='\0'){
-        if (*string=='.'){
-            strIp[i1][i2] = '\0';
-            i1++;
-            i2=0;
-            if (i1 > 3){//The supplied ip was to long
-                break;
-            }
-        }
-        else{
-            strIp[i1][i2] = *string;
-            i2++;
-            if(i2>3){//Ip is of wrong format
-                break;
-            }
-        }
-        string++;
-    }
-    strIp[i1][i2] = '\0';
-
-    for(int i = 0; i<= 3; i++){
-        uint32_t tmp = atoi(strIp[i]);
-        ip |= (tmp << (3-i)*8);
-    }
-
-    return ip;
 }
