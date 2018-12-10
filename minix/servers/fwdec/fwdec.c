@@ -6,13 +6,20 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdbool.h>
 
 /* Declare local functions. */
 static uint32_t stringToIp(char *string);
 static void ipToString(uint32_t ip, char *outBuf, int bufLen);
+void loadConfigurations(void);
+bool filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort,uint16_t  dstPort);
+
+/* Global variables */
+static int mode = MODE_NOTSET;
+Rule* rules = 0;
 
 /*===========================================================================*
- *		            sef_cb_init_fresh                                *
+ *		            sef_cb_init_fresh                                        *
  *===========================================================================*/
 int sef_cb_init_fresh(int UNUSED(type), sef_init_info_t *info)
 {
@@ -21,7 +28,7 @@ int sef_cb_init_fresh(int UNUSED(type), sef_init_info_t *info)
 }
 
 /*===========================================================================*
- *				do_publish				     *
+ *				do_publish				                                     *
  *===========================================================================*/
 int check_packet(message *m_ptr)
 {
@@ -33,19 +40,17 @@ int check_packet(message *m_ptr)
   //printf("Invoked check packet with id: %d\n", m_ptr->m_type);
   //printf("Protocol: %d\nIP Source: %d\nIP Destination %d\nSource Port %d\nDestination Port %d\n", protocol, src_ip, dst_ip, src_port, dst_port);
 
-  char srcIp[16];
-  ipToString(src_ip,srcIp,16);
+  bool res = filter(protocol, src_ip, dst_ip, src_port, dst_port);
 
-  char dstIp[16];
-  ipToString(dst_ip,dstIp,16);
+  //Blacklisting
+  //return res ? LWIP_KEEP_PACKET : LWIP_DROP_PACKET;
 
-  printf("%d %s %s %d %d\n", protocol, srcIp, dstIp, src_port, dst_port);
-  return(OK);
+  return LWIP_KEEP_PACKET;
 }
 
 
 /*===========================================================================*
- *				ip format conversion					     *
+ *				ip format conversion					                     *
  *===========================================================================*/
 static void ipToString(uint32_t ip, char *outBuf, int bufLen){
   //Converts an IP in uint32 format to a printable format
@@ -93,4 +98,46 @@ static uint32_t stringToIp(char *string){
   }
 
   return ip;
+}
+
+/*===========================================================================*
+ *				configurations                                               *
+ *===========================================================================*/
+
+void loadConfigurations(){
+  mode = MODE_BLACKLIST;//Hard coded for now
+  printf("[FWDEC] Loading firewall rules");
+  Rule* testRule = malloc(sizeof(Rule));
+  *testRule = RuleDefault;
+  testRule->dstIp = stringToIp("10.0.2.15");
+  rules = testRule;
+}
+
+/*===========================================================================*
+ *				filtering                                                    *
+ *===========================================================================*/
+bool filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, uint16_t  dstPort){
+  //Returns true if the packet matches a rule, otherwise false
+
+  if(mode == MODE_NOTSET){//If configurations hasn't been loaded yet
+      loadConfigurations();
+  }
+
+  char srcIpS[16];
+  ipToString(srcIp,srcIpS,16);
+  char dstIpS[16];
+  ipToString(dstIp,dstIpS,16);
+
+  printf("%d %s %s %d %d\n", proto, srcIpS, dstIpS, srcPort, dstPort);
+
+  Rule* currRule = rules;
+  while(currRule != 0){
+    printf("%d=?=%d or %d=?=%d\n", srcIp,currRule->srcIp,dstIp,currRule->dstIp);
+    if (dstIp == currRule->dstIp){
+      printf("Packet matched a rule!\n");
+      return true;
+    }
+    currRule = currRule->next;
+  }
+  return false;
 }

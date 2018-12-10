@@ -62,7 +62,7 @@ send_reply:
       memset(&m,0, sizeof(m));
       /* Finally send reply message, unless disabled. */
       if (result != EDONTREPLY) {
-          m.m_type = LWIP_KEEP_PACKET;  		/* build reply message */
+          m.m_type = result;  		/* build reply message */
           reply(who_e, &m);		/* send it away */
       }
   }

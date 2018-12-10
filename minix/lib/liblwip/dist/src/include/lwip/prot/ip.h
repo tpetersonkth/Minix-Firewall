@@ -1,6 +1,7 @@
 /**
  * @file
  * IP protocol definitions
+ * Keep the protocol definitions synced with minix/servers/fwdec/fwdec.h
  */
 
 /*
