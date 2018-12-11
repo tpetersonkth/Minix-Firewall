@@ -968,10 +968,10 @@ ip4_output_if_opt_src(struct pbuf *p, const ip4_addr_t *src, const ip4_addr_t *d
   /* Drop if True is returned */
   if(pbuf_filter(p) != LWIP_KEEP_PACKET) {
     //pbuf_free(p);
-    printf("Dropping outgoing packet");
+    printf("Dropping outgoing packet\n");
     return ERR_OK;
   }
-  printf("Keeping outgoing packet");
+  printf("Keeping outgoing packet\n");
 
 #if ENABLE_LOOPBACK
   if (ip4_addr_cmp(dest, netif_ip4_addr(netif))

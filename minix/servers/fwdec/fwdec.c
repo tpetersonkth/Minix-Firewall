@@ -37,15 +37,16 @@ int check_packet(message *m_ptr)
   u32_t dst_ip = m_ptr->m_fw_filter.dst_ip;
   u16_t src_port = m_ptr->m_fw_filter.src_port;
   u16_t dst_port = m_ptr->m_fw_filter.dst_port;
-  //printf("Invoked check packet with id: %d\n", m_ptr->m_type);
-  //printf("Protocol: %d\nIP Source: %d\nIP Destination %d\nSource Port %d\nDestination Port %d\n", protocol, src_ip, dst_ip, src_port, dst_port);
 
   bool res = filter(protocol, src_ip, dst_ip, src_port, dst_port);
 
-  //Blacklisting
-  //return res ? LWIP_KEEP_PACKET : LWIP_DROP_PACKET;
-
-  return LWIP_KEEP_PACKET;
+  //Avoided nested ternary for clarity and readability! /Thomas
+  if (mode == MODE_WHITELIST){
+    return res ? LWIP_KEEP_PACKET : LWIP_DROP_PACKET;
+  }
+  else{
+    return res ? LWIP_DROP_PACKET : LWIP_KEEP_PACKET;
+  }
 }
 
 
@@ -101,20 +102,30 @@ static uint32_t stringToIp(char *string){
 }
 
 /*===========================================================================*
- *				configurations                                               *
+ *				configurations                                                     *
  *===========================================================================*/
 
 void loadConfigurations(){
-  mode = MODE_BLACKLIST;//Hard coded for now
+  mode = MODE_WHITELIST;//Hard coded for now
   printf("[FWDEC] Loading firewall rules");
-  Rule* testRule = malloc(sizeof(Rule));
-  *testRule = RuleDefault;
-  testRule->dstIp = stringToIp("10.0.2.15");
-  rules = testRule;
+
+  Rule* dnsRule = malloc(sizeof(Rule));
+  *dnsRule = RuleDefault;//Set all fields to 0, meaning don't care
+  dnsRule->dstIp = stringToIp("10.0.2.3");
+  dnsRule->dstPort = 53;
+
+  Rule* dnsAnsRule = malloc(sizeof(Rule));
+  *dnsAnsRule = RuleDefault;//Set all fields to 0, meaning don't care
+  dnsAnsRule->srcIp = stringToIp("10.0.2.3");
+  dnsAnsRule->srcPort = 53;
+
+  dnsRule->next = dnsAnsRule;
+
+  rules = dnsRule;
 }
 
 /*===========================================================================*
- *				filtering                                                    *
+ *				filtering                                                          *
  *===========================================================================*/
 bool filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, uint16_t  dstPort){
   //Returns true if the packet matches a rule, otherwise false
@@ -131,13 +142,25 @@ bool filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, u
   printf("%d %s %s %d %d\n", proto, srcIpS, dstIpS, srcPort, dstPort);
 
   Rule* currRule = rules;
+  int ruleCount = 1;
   while(currRule != 0){
-    printf("%d=?=%d or %d=?=%d\n", srcIp,currRule->srcIp,dstIp,currRule->dstIp);
-    if (dstIp == currRule->dstIp){
-      printf("Packet matched a rule!\n");
-      return true;
+    ipToString(currRule->srcIp,srcIpS,16);
+    ipToString(currRule->dstIp,dstIpS,16);
+    printf("Rule %d: %d %s %s %d %d\n", ruleCount,currRule->proto, srcIpS, dstIpS, currRule->srcPort, currRule->dstPort);
+    //Check protocol
+    if (currRule->proto == 0 || proto == currRule->proto) {
+      //Check ips, masks have not been added yet
+      if ((currRule->srcIp == 0 || srcIp == currRule->srcIp) && (currRule->dstIp == 0 || dstIp == currRule->dstIp)) {
+        //Check ports
+        if ((currRule->srcPort == 0 || currRule->srcPort == srcPort)&&(currRule->dstPort == 0 || currRule->dstPort == dstPort)){
+          printf("Packet matched rule %d!\n",ruleCount);
+          return true;
+        }
+      }
     }
     currRule = currRule->next;
+    ruleCount++;
   }
   return false;
 }
+
