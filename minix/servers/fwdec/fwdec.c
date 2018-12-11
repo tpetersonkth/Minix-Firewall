@@ -163,4 +163,3 @@ bool filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, u
   }
   return false;
 }
-
