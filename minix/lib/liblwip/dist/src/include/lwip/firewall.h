@@ -7,6 +7,6 @@
 
 #include "lwip/pbuf.h"
 
-void pbuf_filter(struct pbuf *p);
+int pbuf_filter(struct pbuf *p);
 
 #endif //LWIP_HDR_FIREWALL_H

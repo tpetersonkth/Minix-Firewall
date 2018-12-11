@@ -431,7 +431,13 @@ ip4_input(struct pbuf *p, struct netif *inp)
   u16_t iphdr_hlen;
   u16_t iphdr_len;
 
-  pbuf_filter(p);
+  /* Drop if True is returned */
+  if(pbuf_filter(p) != LWIP_KEEP_PACKET) {
+    printf("Dropping incoming packet");
+    pbuf_free(p);
+    return ERR_OK;
+  }
+  printf("Keeping incoming packet");
 
 #if IP_ACCEPT_LINK_LAYER_ADDRESSING || LWIP_IGMP
   int check_ip_src = 1;
@@ -959,7 +965,13 @@ ip4_output_if_opt_src(struct pbuf *p, const ip4_addr_t *src, const ip4_addr_t *d
   LWIP_DEBUGF(IP_DEBUG, ("ip4_output_if: %c%c%"U16_F"\n", netif->name[0], netif->name[1], (u16_t)netif->num));
   ip4_debug_print(p);
 
-  pbuf_filter(p);
+  /* Drop if True is returned */
+  if(pbuf_filter(p) != LWIP_KEEP_PACKET) {
+    //pbuf_free(p);
+    printf("Dropping outgoing packet");
+    return ERR_OK;
+  }
+  printf("Keeping outgoing packet");
 
 #if ENABLE_LOOPBACK
   if (ip4_addr_cmp(dest, netif_ip4_addr(netif))

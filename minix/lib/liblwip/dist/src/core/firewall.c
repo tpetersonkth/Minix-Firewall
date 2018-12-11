@@ -11,7 +11,7 @@
  * Extracts the IP, port and protocol of a pbuf
  * Sends the data to the fwdec server
  */
-void pbuf_filter(struct pbuf *p)
+int pbuf_filter(struct pbuf *p)
 {
   void *data;
   data = p->payload;
@@ -64,8 +64,9 @@ void pbuf_filter(struct pbuf *p)
   //Ask firewall for advice through ipc message
   if (fwdec_check_packet(protocol, src_ip, dst_ip, src_port, dst_port) != LWIP_KEEP_PACKET){
       //Drop packet
-      printf("Dropping packet\n");
-      pbuf_free(p);
-    }
-  printf("Keeping packet\n");
+      //printf("Dropping packet\n");
+      return LWIP_DROP_PACKET;
+  }
+  //printf("Keeping packet\n");
+  return LWIP_KEEP_PACKET;
 }
