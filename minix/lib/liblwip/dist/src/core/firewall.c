@@ -25,7 +25,7 @@ int pbuf_filter(struct pbuf *p)
   unsigned int dstprt2 =*(payload+hlen)>>24 & 0xFF;
  
   unsigned int proto = (*(payload + 2)& 0xFF00)>>8;
-  printf("protcol: %d\n",proto);
+  //printf("protcol: %d\n",proto);
   unsigned int srcIp = *(payload + 3);
   unsigned int dstIp = *(payload + 4);
   dstprt = (dstprt<<4) +dstprt2;
