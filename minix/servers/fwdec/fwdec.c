@@ -172,11 +172,10 @@ bool filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, u
         if ((currRule->srcPort == 0 || currRule->srcPort == srcPort)&&(currRule->dstPort == 0 || currRule->dstPort == dstPort)){
           printf("Packet matched rule %d!\n",ruleCount);
 
-
           if(mode == MODE_BLACKLIST) {
             logToLogfile((char *)LOGFILE,"[Dropped] ",10);
-            char logEntry[200];
-            int entryLen = packetToString(logEntry, 200, proto, srcIp, dstIp, srcPort, dstPort);
+            char logEntry[82];
+            int entryLen = packetToString(logEntry, 82, proto, srcIp, dstIp, srcPort, dstPort);
             logToLogfile((char *)LOGFILE,logEntry,entryLen);
             logToLogfile((char *)LOGFILE,"\n",1);
           }
@@ -213,7 +212,7 @@ int packetToString(char* buf, int buflen, uint8_t proto, uint32_t srcIp, uint32_
 
   const char* origBuf = buf;
 
-  const int minBufsize = 40;// params in string version and formatting: 3+15+15+5+5+x
+  const int minBufsize = 82;// = [Size of params]+[size of formatting]=(3+15+15+5+5)+(6+7+9+7+9+1) = 43 + 39 = 82
   if (buflen >= minBufsize){//Avoid buffer overflows, caller is responsible for providing a large enough buffer
     char* string;//for holding port conversion temporarily
     char* ipString[16];//For holding ip in string format temporarily
