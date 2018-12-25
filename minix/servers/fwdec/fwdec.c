@@ -9,31 +9,31 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <unistd.h>//File handling
+#include <fcntl.h>//File handling flags
 
-//includes for file handling..
-#include <fcntl.h>
-#include <machine/disklabel.h>
-#include <signal.h>
-#include <unistd.h>
-#include <paths.h>
 
 /* Declare local functions. */
 static uint32_t stringToIp(char *string);
 static void ipToString(uint32_t ip, char *outBuf, int bufLen);
 void loadConfigurations(void);
-bool filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort,uint16_t  dstPort);
+int filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort,uint16_t  dstPort);
+void logConfigurations(void);
 void logToLogfile(char* logfile,char* logEntry, int length);
 int packetToString(char* buf, int buflen, uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, uint16_t  dstPort);
 char *itoa(int n);
 
 /* Global variables */
-const char *LOGFILE = "/var/log/fwdec";
 static int mode = MODE_NOTSET;
 Rule* rules = 0;
 
 //itoa
 static int next;
 static char qbuf[8];
+
+/* Global variables - Configurables*/
+const char *LOGFILE = "/var/log/fwdec";//Where the logfile should be placed
+
 
 /*===========================================================================*
  *		            sef_cb_init_fresh                                        *
@@ -49,21 +49,44 @@ int sef_cb_init_fresh(int UNUSED(type), sef_init_info_t *info)
  *===========================================================================*/
 int check_packet(message *m_ptr)
 {
-  u8_t protocol = m_ptr->m_fw_filter.protocol;
-  u32_t src_ip = m_ptr->m_fw_filter.src_ip;
-  u32_t dst_ip = m_ptr->m_fw_filter.dst_ip;
-  u16_t src_port = m_ptr->m_fw_filter.src_port;
-  u16_t dst_port = m_ptr->m_fw_filter.dst_port;
+  u8_t proto = m_ptr->m_fw_filter.protocol;
+  u32_t srcIp = m_ptr->m_fw_filter.src_ip;
+  u32_t dstIp = m_ptr->m_fw_filter.dst_ip;
+  u16_t srcPort = m_ptr->m_fw_filter.src_port;
+  u16_t dstPort = m_ptr->m_fw_filter.dst_port;
 
-  bool res = filter(protocol, src_ip, dst_ip, src_port, dst_port);
+  int res = filter(proto, srcIp, dstIp, srcPort, dstPort);
 
-  //Avoided nested ternary for clarity and readability! /Thomas
-  if (mode == MODE_WHITELIST){
-    return res ? LWIP_KEEP_PACKET : LWIP_DROP_PACKET;
+  if (mode == MODE_WHITELIST && res == 0){
+      logToLogfile((char *) LOGFILE, "[Packet Dropped|Not in whitelist] ",24);
+
+      char logEntry[82];
+      int entryLen = packetToString(logEntry, 82, proto, srcIp, dstIp, srcPort, dstPort);
+      logToLogfile((char *)LOGFILE,logEntry,entryLen);
+
+      logToLogfile((char *)LOGFILE,"\n",1);
+
+      return LWIP_DROP_PACKET;
+
   }
-  else{
-    return res ? LWIP_DROP_PACKET : LWIP_KEEP_PACKET;
+  else if (mode == MODE_BLACKLIST && res != 0){
+    //Log the drop
+    logToLogfile((char *)LOGFILE,"[Packet dropped|Violated rule ",30);
+
+    char *vioRule = itoa(res);
+    logToLogfile((char *)LOGFILE,vioRule,strlen(vioRule));
+    logToLogfile((char *)LOGFILE,"] ",2);
+
+    char logEntry[82];
+    int entryLen = packetToString(logEntry, 82, proto, srcIp, dstIp, srcPort, dstPort);
+    logToLogfile((char *)LOGFILE,logEntry,entryLen);
+
+    logToLogfile((char *)LOGFILE,"\n",1);
+    return LWIP_DROP_PACKET;
+
   }
+
+  return LWIP_KEEP_PACKET;
 }
 
 
@@ -124,9 +147,8 @@ static uint32_t stringToIp(char *string){
 
 void loadConfigurations(){
   mode = MODE_BLACKLIST;//Hard coded for now
-  printf("[FWDEC] Loading firewall rules");
 
-  Rule* dnsRule = malloc(sizeof(Rule));
+  /*Rule* dnsRule = malloc(sizeof(Rule));
   *dnsRule = RuleDefault;//Set all fields to 0, meaning don't care
   dnsRule->dstIp = stringToIp("10.0.2.3");
   dnsRule->dstPort = 53;
@@ -139,23 +161,26 @@ void loadConfigurations(){
   dnsRule->next = dnsAnsRule;
 
   rules = dnsRule;
+  */
+  logToLogfile((char *)LOGFILE,"Firewall configurations loaded successfully\n",44);
+  logConfigurations();
 }
 
 /*===========================================================================*
  *				filtering                                                          *
  *===========================================================================*/
-bool filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, uint16_t  dstPort){
-  //Returns true if the packet matches a rule, otherwise false
+int filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, uint16_t  dstPort){
+  //Returns the rule number if the packet matches a rule, otherwise 0
 
   if(mode == MODE_NOTSET){//If configurations hasn't been loaded yet
       loadConfigurations();
   }
 
   char srcIpS[16];
-  ipToString(srcIp,srcIpS,16);
   char dstIpS[16];
-  ipToString(dstIp,dstIpS,16);
 
+  ipToString(srcIp,srcIpS,16);
+  ipToString(dstIp,dstIpS,16);
   printf("%d %s %s %d %d\n", proto, srcIpS, dstIpS, srcPort, dstPort);
 
   Rule* currRule = rules;
@@ -163,36 +188,71 @@ bool filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, u
   while(currRule != 0){
     ipToString(currRule->srcIp,srcIpS,16);
     ipToString(currRule->dstIp,dstIpS,16);
-    printf("Rule %d: %d %s %s %d %d\n", ruleCount,currRule->proto, srcIpS, dstIpS, currRule->srcPort, currRule->dstPort);
     //Check protocol
     if (currRule->proto == 0 || proto == currRule->proto) {
       //Check ips, masks have not been added yet
       if ((currRule->srcIp == 0 || srcIp == currRule->srcIp) && (currRule->dstIp == 0 || dstIp == currRule->dstIp)) {
         //Check ports
         if ((currRule->srcPort == 0 || currRule->srcPort == srcPort)&&(currRule->dstPort == 0 || currRule->dstPort == dstPort)){
-          printf("Packet matched rule %d!\n",ruleCount);
-
-          if(mode == MODE_BLACKLIST) {
-            logToLogfile((char *)LOGFILE,"[Dropped] ",10);
-            char logEntry[82];
-            int entryLen = packetToString(logEntry, 82, proto, srcIp, dstIp, srcPort, dstPort);
-            logToLogfile((char *)LOGFILE,logEntry,entryLen);
-            logToLogfile((char *)LOGFILE,"\n",1);
-          }
-
-          return true;
+          return ruleCount;
         }
       }
     }
     currRule = currRule->next;
     ruleCount++;
   }
-  return false;
+  return 0;
 }
 
 /*===========================================================================*
  *				logging                                                          *
  *===========================================================================*/
+void logConfigurations(){
+  char *modeS = mode == MODE_BLACKLIST ? "Mode: Blacklist\n": "Mode: Whitelist\n";
+  logToLogfile((char *)LOGFILE,modeS,strlen(modeS));
+
+  Rule* currRule = rules;
+  int ruleCount = 1;
+  while(currRule != 0){
+    char *string;//Use for temporary conversions
+    char* ipString[16];//For holding ip in string format temporarily
+
+    logToLogfile((char *)LOGFILE,"Rule ",5);
+
+    string = itoa(ruleCount);
+    logToLogfile((char *)LOGFILE,string,strlen((char *)string));
+
+    logToLogfile((char *)LOGFILE," Proto:",7);
+
+    string = itoa(currRule->proto);
+    logToLogfile((char *)LOGFILE,string,strlen((char *)string));
+
+    logToLogfile((char *)LOGFILE," srcIp:",7);
+
+    ipToString(currRule->srcIp,(char *)ipString,16);
+    logToLogfile((char *)LOGFILE,(char *)ipString,strlen((char *)ipString));
+
+    logToLogfile((char *)LOGFILE," srcPort:",9);
+
+    string = itoa(currRule->srcPort);
+    logToLogfile((char *)LOGFILE,string,strlen((char *)string));
+
+    logToLogfile((char *)LOGFILE," dstIp:",7);
+
+    ipToString(currRule->dstIp,(char *)ipString,16);
+    logToLogfile((char *)LOGFILE,(char *)ipString,strlen((char *)ipString));
+    logToLogfile((char *)LOGFILE," dstPort:",9);
+
+    string = itoa(currRule->dstPort);
+    logToLogfile((char *)LOGFILE,string,strlen((char *)string));
+
+    logToLogfile((char *)LOGFILE,"\n",1);
+
+    currRule = currRule->next;
+    ruleCount++;
+  }
+
+}
 
 void logToLogfile(char* logFile,char* logEntry, int length){
   //Writes logentry to logfile using vfs syscall wrappers
@@ -257,6 +317,10 @@ int packetToString(char* buf, int buflen, uint8_t proto, uint32_t srcIp, uint32_
 
   return buf - origBuf; //returns the length of the string
 }
+
+/*===========================================================================*
+ *				Utilities                                                          *
+ *===========================================================================*/
 
 //Copied from minix/lib/libc/gen/itoa.c as services can not access the full stdlib.
 char *itoa(int n)

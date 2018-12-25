@@ -437,7 +437,7 @@ ip4_input(struct pbuf *p, struct netif *inp)
     pbuf_free(p);
     return ERR_OK;
   }
-  printf("Keeping incoming packet");
+  printf("Keeping incoming packet\n");
 
 #if IP_ACCEPT_LINK_LAYER_ADDRESSING || LWIP_IGMP
   int check_ip_src = 1;
