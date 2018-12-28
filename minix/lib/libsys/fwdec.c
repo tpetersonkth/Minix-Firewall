@@ -5,7 +5,7 @@
 #include "syslib.h"
 #include <stdio.h>
 
-static int do_invoke_fwdec(message *m, int type)//TODO remove type parameter
+static int do_invoke_fwdec(message *m)
 {
 	int r;
 
@@ -13,7 +13,10 @@ static int do_invoke_fwdec(message *m, int type)//TODO remove type parameter
 	 * Sending IPC message to fwdec server
 	 * Returns a message with type LWIP_KEEP_PACKET or LWIP_DROP_PACKET
 	 */
-   	ipc_sendrec(FWDEC_PROC_NR,m);//TODO: handle errors
+   	int res = ipc_sendrec(FWDEC_PROC_NR,m);
+		if (res != OK) {
+			return LWIP_DROP_PACKET;//If ipc fails we drop the packet for security reasons
+		}
 
    	switch (m->m_type) {
 		case LWIP_KEEP_PACKET:
@@ -48,5 +51,5 @@ int fwdec_check_packet(int protocol, int src_ip, int dst_ip, int src_port, int d
 	m.m_fw_filter.src_port = src_port;
 	m.m_fw_filter.dst_port = dst_port;
 
-	return do_invoke_fwdec(&m, FWDEC_CHECK_PACKET);
+	return do_invoke_fwdec(&m);
 }

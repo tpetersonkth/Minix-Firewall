@@ -26,7 +26,6 @@ int main(int argc, char **argv)
  * three major activities: getting new work, processing the work, and
  * sending the reply. The loop never terminates, unless a panic occurs.
  */
-  printf("fwdec starting\n");
   
   message m;
   int result;                 
@@ -54,9 +53,6 @@ int main(int argc, char **argv)
           printf("fwdec: warning, got illegal request from %d\n", m.m_source);
           result = EINVAL;
       }
-      //char p[16];
-      //ipToString(stringToIp("120.121.122.123"),p,16);
-      //printf("Final IP: %s\n",p);
 
 send_reply:
       memset(&m,0, sizeof(m));

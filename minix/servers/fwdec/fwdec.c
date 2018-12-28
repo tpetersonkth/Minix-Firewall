@@ -32,8 +32,8 @@ static int next;
 static char qbuf[8];
 
 /* Global variables - Configurables*/
-const char *LOGFILE = "/var/log/fwdec";//Where the logfile should be placed
-
+const char *LOGFILE = "/var/log/fwdec";//Where the log file should be placed
+const int defaultMode = MODE_BLACKLIST;//Might be exported to config file in the future
 
 /*===========================================================================*
  *		            sef_cb_init_fresh                                        *
@@ -146,7 +146,7 @@ static uint32_t stringToIp(char *string){
  *===========================================================================*/
 
 void loadConfigurations(){
-  mode = MODE_BLACKLIST;//Hard coded for now
+  mode = defaultMode;
 
   /*Rule* dnsRule = malloc(sizeof(Rule));
   *dnsRule = RuleDefault;//Set all fields to 0, meaning don't care
@@ -181,7 +181,10 @@ int filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, ui
 
   ipToString(srcIp,srcIpS,16);
   ipToString(dstIp,dstIpS,16);
-  printf("%d %s %s %d %d\n", proto, srcIpS, dstIpS, srcPort, dstPort);
+
+#if (FWDEC_DEBUG == 1)
+    printf("[FWDEC|Filter] Proto:%d srcIp:%s srcPort:%d dstIp:%s dstPort:%d\n", proto, srcIpS, srcPort, dstIpS, dstPort);
+#endif
 
   Rule* currRule = rules;
   int ruleCount = 1;
@@ -275,7 +278,7 @@ int packetToString(char* buf, int buflen, uint8_t proto, uint32_t srcIp, uint32_
   const int minBufsize = 82;// = [Size of params]+[size of formatting]=(3+15+15+5+5)+(6+7+9+7+9+1) = 43 + 39 = 82
   if (buflen >= minBufsize){//Avoid buffer overflows, caller is responsible for providing a large enough buffer
     char* string;//for holding port conversion temporarily
-    char* ipString[16];//For holding ip in string format temporarily
+    char* ipString[16];//for holding ip in string format temporarily
 
     strncpy(buf,"Proto:",6);
     buf = buf + 6;
