@@ -33,7 +33,7 @@ static char qbuf[8];
 
 /* Global variables - Configurables*/
 const char *LOGFILE = "/var/log/fwdec";//Where the log file should be placed
-const int defaultMode = MODE_BLACKLIST;//Might be exported to config file in the future
+const int defaultMode = MODE_WHITELIST;//Might be exported to config file in the future
 
 /*===========================================================================*
  *		            sef_cb_init_fresh                                        *
@@ -58,7 +58,7 @@ int check_packet(message *m_ptr)
   int res = filter(proto, srcIp, dstIp, srcPort, dstPort);
 
   if (mode == MODE_WHITELIST && res == 0){
-      logToLogfile((char *) LOGFILE, "[Packet Dropped|Not in whitelist] ",24);
+      logToLogfile((char *) LOGFILE, "[Packet Dropped|Not in whitelist] ",33);
 
       char logEntry[82];
       int entryLen = packetToString(logEntry, 82, proto, srcIp, dstIp, srcPort, dstPort);
@@ -148,7 +148,7 @@ static uint32_t stringToIp(char *string){
 void loadConfigurations(){
   mode = defaultMode;
 
-  /*Rule* dnsRule = malloc(sizeof(Rule));
+  Rule* dnsRule = malloc(sizeof(Rule));
   *dnsRule = RuleDefault;//Set all fields to 0, meaning don't care
   dnsRule->dstIp = stringToIp("10.0.2.3");
   dnsRule->dstPort = 53;
@@ -158,10 +158,19 @@ void loadConfigurations(){
   dnsAnsRule->srcIp = stringToIp("10.0.2.3");
   dnsAnsRule->srcPort = 53;
 
-  dnsRule->next = dnsAnsRule;
+  Rule* toKthRule = malloc(sizeof(Rule));
+  *toKthRule = RuleDefault;//Set all fields to 0, meaning don't care
+  toKthRule->dstIp = stringToIp("130.237.28.40");
+
+  Rule* fromKthRule = malloc(sizeof(Rule));
+  *fromKthRule = RuleDefault;//Set all fields to 0, meaning don't care
+  fromKthRule->srcIp = stringToIp("130.237.28.40");
 
   rules = dnsRule;
-  */
+  dnsRule->next = dnsAnsRule;
+  dnsAnsRule->next = toKthRule;
+  toKthRule->next = fromKthRule;
+
   logToLogfile((char *)LOGFILE,"Firewall configurations loaded successfully\n",44);
   logConfigurations();
 }

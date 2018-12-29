@@ -7,30 +7,24 @@
 
 static int do_invoke_fwdec(message *m)
 {
-	int r;
-
 	/*
-	 * Sending IPC message to fwdec server
-	 * Returns a message with type LWIP_KEEP_PACKET or LWIP_DROP_PACKET
-	 */
-   	int res = ipc_sendrec(FWDEC_PROC_NR,m);
-		if (res != OK) {
-			return LWIP_DROP_PACKET;//If ipc fails we drop the packet for security reasons
-		}
-
-   	switch (m->m_type) {
-		case LWIP_KEEP_PACKET:
-		    r = LWIP_KEEP_PACKET;
-			break;
-		case LWIP_DROP_PACKET:
-		    r = LWIP_DROP_PACKET;
-			break;
-		default:
-			printf("lwip: warning, got illegal request from %d\n", m->m_source);
-			r = EINVAL;
+	* Sending IPC message to fwdec server
+	* Returns a message with type LWIP_KEEP_PACKET or LWIP_DROP_PACKET
+	*/
+	int res = ipc_sendrec(FWDEC_PROC_NR,m);
+	if (res != OK) {
+	  return LWIP_DROP_PACKET;//If ipc fails we drop the packet for security reasons
 	}
 
-	return r;
+	switch (m->m_type) {
+	  case LWIP_KEEP_PACKET:
+	    return LWIP_KEEP_PACKET;
+		case LWIP_DROP_PACKET:
+		  return LWIP_DROP_PACKET;
+		default:
+			printf("lwip: warning, got illegal request from %d\n", m->m_source);
+			return EINVAL;
+	}
 }
 
 /*
