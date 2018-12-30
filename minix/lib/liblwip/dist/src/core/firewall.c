@@ -23,7 +23,12 @@ int pbuf_filter(struct pbuf *p)
   unsigned int srcprt2 =*(payload+hlen)>>8 & 0xFF;
   unsigned int dstprt =*(payload+hlen)>>16 & 0xFF;
   unsigned int dstprt2 =*(payload+hlen)>>24 & 0xFF;
- 
+
+  unsigned int flags = *(payload+hlen+3)>>8 & 0x3F;
+  unsigned int synFlag = flags>> 1 & 0x1;
+  unsigned int ackFlag = flags>> 4 & 0x1;
+  printf("flags: %d, syn: %d, ack: %d\n",flags,synFlag,ackFlag);
+
   unsigned int proto = (*(payload + 2)& 0xFF00)>>8;
   //printf("protcol: %d\n",proto);
   unsigned int srcIp = *(payload + 3);
