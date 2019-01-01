@@ -5,12 +5,12 @@
 #include "syslib.h"
 #include <stdio.h>
 
-static int do_invoke_fwdec(message *m)
-{
-	/*
+/*
 	* Sending IPC message to fwdec server
 	* Returns a message with type LWIP_KEEP_PACKET or LWIP_DROP_PACKET
 	*/
+static int do_invoke_fwdec(message *m)
+{
 	int res = ipc_sendrec(FWDEC_PROC_NR,m);
 	if (res != OK) {
 	  return LWIP_DROP_PACKET;//If ipc fails we drop the packet for security reasons

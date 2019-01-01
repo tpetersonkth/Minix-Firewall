@@ -224,14 +224,13 @@ _ASSERT_MSG_SIZE(mess_fs_vfs_readwrite);
  * Firewall message struct
  */
 typedef struct {
-	uint32_t	protocol; 	// Protocol (1 byte uint8_t)
 	uint32_t	src_ip; 	// source IP (4 bytes)
 	uint32_t	dst_ip; 	// destination IP (4 bytes)
-	uint32_t	src_port; 	// source port (2 bytes uint16_t)
-	uint32_t	dst_port; 	// destination port (2 bytes uint16_t)
+	uint16_t	src_port; 	// source port (2 bytes uint16_t)
+	uint16_t	dst_port; 	// destination port (2 bytes uint16_t)
+	uint8_t		protocol; 	// Protocol (1 byte uint8_t)
 
-	//TODO fix padding for uint16_t and uint8_t types
-	uint8_t padding[36];
+	uint8_t padding[43];
 } mess_fw_filter;
 _ASSERT_MSG_SIZE(mess_fw_filter);
 
