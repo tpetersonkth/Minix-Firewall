@@ -67,7 +67,7 @@ int pbuf_filter(struct pbuf *p)
   int dst_port = dstprt;
 
   //Ask firewall for advice through ipc message
-  if (fwdec_check_packet(protocol, src_ip, dst_ip, src_port, dst_port) != LWIP_KEEP_PACKET){
+  if (fwdec_check_packet(protocol, src_ip, dst_ip, src_port, dst_port, synFlag, ackFlag) != LWIP_KEEP_PACKET){
       //Drop packet
       //printf("Dropping packet\n");
       return LWIP_DROP_PACKET;

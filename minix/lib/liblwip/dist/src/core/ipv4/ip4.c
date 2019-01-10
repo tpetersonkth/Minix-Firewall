@@ -431,7 +431,7 @@ ip4_input(struct pbuf *p, struct netif *inp)
   u16_t iphdr_hlen;
   u16_t iphdr_len;
 
-  /* Drop if True is returned */
+  /* Drop packet if it is not supposed to be kept */
   if(pbuf_filter(p) != LWIP_KEEP_PACKET) {
     pbuf_free(p);
     return ERR_OK;

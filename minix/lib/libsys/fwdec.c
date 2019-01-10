@@ -32,7 +32,7 @@ static int do_invoke_fwdec(message *m)
  * Takes a pbuf and extracts source ip, destination ip, ports and protocol
  * Sends an IPC to the firewall
  */
-int fwdec_check_packet(int protocol, int src_ip, int dst_ip, int src_port, int dst_port)
+int fwdec_check_packet(int protocol, int src_ip, int dst_ip, int src_port, int dst_port, int tcp_syn, int tcp_ack)
 {
 	message m;
 	memset(&m, 0, sizeof(m));
@@ -44,6 +44,8 @@ int fwdec_check_packet(int protocol, int src_ip, int dst_ip, int src_port, int d
 	m.m_fw_filter.dst_ip = dst_ip;
 	m.m_fw_filter.src_port = src_port;
 	m.m_fw_filter.dst_port = dst_port;
+  m.m_fw_filter.tcp_syn = tcp_syn;
+  m.m_fw_filter.tcp_ack= tcp_ack;
 
 	return do_invoke_fwdec(&m);
 }

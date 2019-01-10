@@ -54,6 +54,12 @@ int check_packet(message *m_ptr)
   u32_t dstIp = m_ptr->m_fw_filter.dst_ip;
   u16_t srcPort = m_ptr->m_fw_filter.src_port;
   u16_t dstPort = m_ptr->m_fw_filter.dst_port;
+  u8_t tcpSyn = m_ptr->m_fw_filter.tcp_syn;
+  u8_t tcpAck = m_ptr->m_fw_filter.tcp_ack;
+
+  if (proto == IP_PROTO_TCP){
+    printf("Recieved SYN: %d and ACK: %d",tcpSyn,tcpAck);
+  }
 
   int res = filter(proto, srcIp, dstIp, srcPort, dstPort);
 

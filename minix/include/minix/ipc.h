@@ -229,8 +229,10 @@ typedef struct {
 	uint16_t	src_port; 	// source port (2 bytes uint16_t)
 	uint16_t	dst_port; 	// destination port (2 bytes uint16_t)
 	uint8_t		protocol; 	// Protocol (1 byte uint8_t)
+	uint8_t         tcp_syn;        // Tcp SYN (1 bit)
+	uint8_t         tcp_ack;        // TCP ACK (1 bit)
 
-	uint8_t padding[43];
+	uint8_t padding[41];
 } mess_fw_filter;
 _ASSERT_MSG_SIZE(mess_fw_filter);
 
