@@ -268,9 +268,11 @@ int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack){
     tcpSynProt* newEntry = malloc(sizeof(tcpSynProt));
     newEntry->srcIp = srcIp;
     newEntry->synCount = 0;
-    current = newEntry;
     //Add to list
-    if (previous == 0){//list is empty
+    if (tcpSynConnections == 0){//list is empty
+      tcpSynConnections = newEntry;
+    }
+    else if (previous == 0){//list has one element
       tcpSynConnections->next = newEntry;
     }
     else{
