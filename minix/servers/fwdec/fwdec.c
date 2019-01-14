@@ -239,12 +239,14 @@ int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack){
   //Blacklist misbehaving clients
 
   if (proto != IP_PROTO_TCP){
+    printf("[FWDEC_TCPSCAN] Keeping, protocol is not TCP!\n");
     return LWIP_KEEP_PACKET;
   }
 
   if (syn > 1 || ack > 1){//syn and ack flag should always be 1 or 0
     //Should never arrive here unless someone has called the function with wrong values for syn or ack
     logToLogfile((char *)LOGFILE,"WARNING: Received malformed syn and ack values\n",47);
+    printf("[FWDEC_TCPSCAN] Recieved malformed syn and ack values\n");
     return LWIP_DROP_PACKET;
   }
 
@@ -262,6 +264,7 @@ int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack){
   }
 
   if (current == 0){//Source Ip was not found in list
+    printf("[FWDEC_TCPSCAN] Creating new item in tcp syn list!\n");
     tcpSynProt* newEntry = malloc(sizeof(tcpSynProt));
     newEntry->srcIp = srcIp;
     newEntry->synCount = 0;
@@ -279,12 +282,14 @@ int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack){
 
   //Check for too many unjustified syns
   if (current->synCount >= 5){
+    printf("[FWDEC] Blocking blacklisted ip as syncount is too high!\n");
     return LWIP_DROP_PACKET;
   }
 
   //Update synCount
   current->synCount = ((syn == 0 && ack == 1 && current->synCount == 0)?0:current->synCount+syn-ack); //syn and ack values can only be 1 or 0
 
+  printf("[FWDEC] Keeping tcp packet!\n");
   return LWIP_KEEP_PACKET;
 }
 
