@@ -21,23 +21,21 @@
 #define IP_PROTO_UDPLITE 136
 #define IP_PROTO_TCP     6
 
-struct Rule_s {//TODO: Future work: masking not yet used
-    struct Rule_s* next;
-    uint8_t proto;
-    uint32_t srcIp;
-    //uint8_t srcIpMask = 0;
-    uint32_t  dstIp;
-    //uint8_t dstIpMask = 0;
-    uint16_t  srcPort;
-    uint16_t  dstPort;
-} RuleDefault = {0,0,0,0,0};
+struct Rule_s {
+  struct Rule_s *next;
+  uint8_t proto;
+  uint32_t srcIp;
+  uint32_t dstIp;
+  uint16_t srcPort;
+  uint16_t dstPort;
+} RuleDefault = {0, 0, 0, 0, 0};
 typedef struct Rule_s Rule;
 
 struct tcpSynProt_s {//Used for keeping track of syn-scan and syn dos attacks
-    struct tcpSynProt_s* next;
-    uint32_t srcIp;
-    uint32_t synCount;//The number of TCP syn packets recieved without subsequent ACK packets
-    time_t timestamp;
+  struct tcpSynProt_s *next;
+  uint32_t srcIp;
+  uint32_t synCount;//The number of TCP syn packets recieved without subsequent ACK packets
+  time_t timestamp;
 };
 typedef struct tcpSynProt_s tcpSynProt;
 

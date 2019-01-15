@@ -1,4 +1,7 @@
-/*  fwdec - Firewall decision server		Author: Thomas Peterson*/
+/*
+ * fwdec - Firewall decision server
+ * Author: Thomas Peterson
+ */
 
 #include "inc.h"
 #include "fwdec.h"
@@ -9,9 +12,9 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdbool.h>
-#include <unistd.h>//File handling
-#include <fcntl.h>//File handling flags
-#include <sys/time.h>//System time
+#include <unistd.h> //File handling
+#include <fcntl.h> //File handling flags
+#include <sys/time.h> //System time
 
 
 /* Declare local functions. */
@@ -30,15 +33,14 @@ static int mode = MODE_NOTSET;
 Rule* rules = 0;
 tcpSynProt* tcpSynConnections = 0;
 
-//itoa
 static int next;
 static char qbuf[8];
 
-/* Global variables - Configurables*/
-const char *LOGFILE = "/var/log/fwdec";//Where the log file should be placed
-const int defaultMode = MODE_WHITELIST;//Might be exported to config file in the future
-int TCP_PROTECTION_TIMEOUT = 30;//The amount of seconds before a tcp protection entry is reset
-int TCP_MAX_SYNCOUNT = 5;//The maximum amount of suspicious SYN packets allowed from a host
+/* Global variables - Configurables */
+const char *LOGFILE = "/var/log/fwdec"; //Where the log file should be placed
+const int defaultMode = MODE_WHITELIST; //Might be exported to config file in the future
+int TCP_PROTECTION_TIMEOUT = 30; //The amount of seconds before a tcp protection entry is reset
+int TCP_MAX_SYNCOUNT = 5; //The maximum amount of suspicious SYN packets allowed from a host
 
 /*===========================================================================*
  *		            sef_cb_init_fresh                                        *
@@ -439,10 +441,10 @@ int packetToString(char* buf, int buflen, uint8_t proto, uint32_t srcIp, uint32_
 
   const char* origBuf = buf;
 
-  const int minBufsize = 82;// = [Size of params]+[size of formatting]=(3+15+15+5+5)+(6+7+9+7+9+1) = 43 + 39 = 82
-  if (buflen >= minBufsize){//Avoid buffer overflows, caller is responsible for providing a large enough buffer
-    char* string;//for holding port conversion temporarily
-    char* ipString[16];//for holding ip in string format temporarily
+  const int minBufsize = 82; // = [Size of params]+[size of formatting]=(3+15+15+5+5)+(6+7+9+7+9+1) = 43 + 39 = 82
+  if (buflen >= minBufsize){ //Avoid buffer overflows, caller is responsible for providing a large enough buffer
+    char* string; //for holding port conversion temporarily
+    char* ipString[16]; //for holding ip in string format temporarily
 
     strncpy(buf,"Proto:",6);
     buf = buf + 6;
