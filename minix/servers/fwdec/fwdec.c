@@ -172,10 +172,54 @@ void loadConfigurations(){
   *fromKthRule = RuleDefault;//Set all fields to 0, meaning don't care
   fromKthRule->srcIp = stringToIp("130.237.28.40");
 
+  Rule* allowUDP25 = malloc(sizeof(Rule));
+  *allowUDP25 = RuleDefault;//Set all fields to 0, meaning don't care
+  allowUDP25->proto = 17;
+  allowUDP25->dstPort = 25;
+
+  Rule* allowTCP23 = malloc(sizeof(Rule));
+  *allowTCP23 = RuleDefault;//Set all fields to 0, meaning don't care
+  allowTCP23->proto = 6;
+  allowTCP23->dstPort = 23;
+
+  Rule* sendToGateway = malloc(sizeof(Rule));
+  *sendToGateway = RuleDefault;
+  sendToGateway->dstIp = stringToIp("10.0.2.2");
+
+  Rule* allowAll = malloc(sizeof(Rule));
+  *allowAll = RuleDefault;//Set all fields to 0, meaning don't care
+
+  /*******************************************
+   * TEST CASE 1
+   * only allow DNS messages that uses port 53
+   *******************************************/
   rules = dnsRule;
-  dnsRule->next = dnsAnsRule;
-  dnsAnsRule->next = toKthRule;
-  toKthRule->next = fromKthRule;
+  /*****************
+   * TEST CASE 1 END
+   *****************/
+
+  /************************************************
+   * TEST CASE 2
+   * only allow DNS and traffic to and from KTH.se
+   ***********************************************/
+  //rules = dnsRule;
+  //dnsRule->next = dnsAnsRule;
+  //dnsAnsRule->next = toKthRule;
+  //toKthRule->next = fromKthRule;
+  /*****************
+   * TEST CASE 2 END
+   *****************/
+
+  /*****************************************
+   * TEST CASE 3
+   * allow TCP on port 23 and UDP on port 25
+   *****************************************/
+  //rules = allowUDP25;
+  //allowUDP25->next = allowTCP23;
+  //allowTCP23->next = sendToGateway;
+  /*****************
+   * TEST CASE 3 END
+   *****************/
 
   logToLogfile((char *)LOGFILE,"Firewall configurations loaded successfully\n",44);
   logConfigurations();
