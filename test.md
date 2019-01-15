@@ -84,3 +84,37 @@ The output in the log file will be:
 ```bash
 [Packet Dropped|Not in whitelist]Proto:6 srcIp:10.0.2.2 srcPort:2124 dstIp:10.0.2.15 dstPort:24
 ```
+## Test 4 Syn flood protection - stateful firewall
+running some of the previous tests you may have encountered the tcp syn flood protection implemented. This is done by counting the number of incomming tcp syn packets,if the number of packets from some ip exceeds a limit (set low for the purposes of testing) under a interval of time (again set low for easier testing) all subsequent tcp packets from that ip will be dropped regardless of destined port. However if some interval of time passes and this limit is not exceeded the record of the number of recieved syn packets will be cleared. To test this one may do the following. Launch qemu with the following settings.
+```bash
+qemu -device e1000,netdev=net0 -netdev user,id=net0,
+hostfwd=tcp::5555-:23,
+hostfwd=tcp::5556-:24,
+hostfwd=udp::5557-:25
+```
+Then run
+```bash
+nc localhost 5555
+Test message
+```
+and then promptly close the connection as to not exceed the limit (5 for the purposes of testing) as most tcp services resend the syn packet if they do not recieve a response after some time. Hopefully only about 4 packets will have been sent in this time and you should be able to observe the output
+```bash
+[FWDEC_TCP_PROT] Resetting timestamp!
+```
+indicating that the previous connections made by this ip has been reset. If the connection is now repeated you will see that aditional tcp-syn packets can be recieved by minix without being blocked. Also implemented is decrement to the syn count of any ip given that a tcp-ack has been recieved as this would indicate an established connection. Sadly testing this feature is difficult and has been left out.
+
+To verify that the firewall correctly blocks incomming packets from ip sources exceeding the allowed limit of syn packets one simply needs to send repeated messages via netcat such as.
+```bash
+nc localhost 5555
+Test message
+Test message
+Test message
+Test message
+Test message
+```
+Ofcourse during a relatively time interval (15 seconds) and in the minix terminal messages such as
+```bash
+[FWDEC_TCP_PROT] Blocking blacklisted ip as syn count is too high!
+````
+should be showing now for all tcp-packets. This will block trafic from that particular ip source and as such any tcp packets sent to any port will be dropped, even though they may be allowed by the firewalls rules.
+
