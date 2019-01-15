@@ -37,7 +37,8 @@ struct tcpSynProt_s {//Used for keeping track of syn-scan and syn dos attacks
     struct tcpSynProt_s* next;
     uint32_t srcIp;
     uint32_t synCount;//The number of TCP syn packets recieved without subsequent ACK packets
-} tcpSynProtDefault = {0,0};
+    time_t timestamp;
+};
 typedef struct tcpSynProt_s tcpSynProt;
 
 #endif
