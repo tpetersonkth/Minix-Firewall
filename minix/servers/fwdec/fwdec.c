@@ -37,7 +37,8 @@ static char qbuf[8];
 /* Global variables - Configurables*/
 const char *LOGFILE = "/var/log/fwdec";//Where the log file should be placed
 const int defaultMode = MODE_WHITELIST;//Might be exported to config file in the future
-int secondsBeforeReset = 30;//The amount of seconds before a tcp protection entry is reset
+int TCP_PROTECTION_TIMEOUT = 30;//The amount of seconds before a tcp protection entry is reset
+int TCP_MAX_SYNCOUNT = 5;//The maximum amount of suspicious SYN packets allowed from a host
 
 /*===========================================================================*
  *		            sef_cb_init_fresh                                        *
@@ -61,11 +62,23 @@ int check_packet(message *m_ptr)
   u8_t tcpSyn = m_ptr->m_fw_filter.tcp_syn;
   u8_t tcpAck = m_ptr->m_fw_filter.tcp_ack;
 
+#if (FWDEC_DEBUG == 1)
   if (proto == IP_PROTO_TCP){
-    printf("Recieved SYN: %d and ACK: %d",tcpSyn,tcpAck);
+    printf("Recieved SYN: %d and ACK: %d\n",tcpSyn,tcpAck);
   }
+#endif
 
   if (tcpSynProtection(proto, srcIp, tcpSyn, tcpAck) != LWIP_KEEP_PACKET){
+
+    //Log to logfile
+    logToLogfile((char *) LOGFILE, "[Packet Dropped|Suspicious TCP behaviour] ",42);
+
+    char logEntry[82];
+    int entryLen = packetToString(logEntry, 82, proto, srcIp, dstIp, srcPort, dstPort);
+    logToLogfile((char *)LOGFILE,logEntry,entryLen);
+
+    logToLogfile((char *)LOGFILE,"\n",1);
+
     return LWIP_DROP_PACKET;
   }
 
@@ -252,9 +265,6 @@ int filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, ui
 
 #if (FWDEC_DEBUG == 1)
     printf("[FWDEC|Filter] Proto:%d srcIp:%s srcPort:%d dstIp:%s dstPort:%d\n", proto, srcIpS, srcPort, dstIpS, dstPort);
-    struct timeval now;
-    gettimeofday(&now, NULL);
-    printf("Time: %llu",now.tv_sec);
 #endif
 
   Rule* currRule = rules;
@@ -286,7 +296,9 @@ int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack){
   time_t timestamp = time(NULL);
 
   if (proto != IP_PROTO_TCP){
+#if (FWDEC_DEBUG == 1)
     printf("[FWDEC_TCP_PROT] Keeping, protocol is not TCP!\n");
+#endif
     return LWIP_KEEP_PACKET;
   }
 
@@ -300,18 +312,18 @@ int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack){
   //find the matching entry
   tcpSynProt* previous = 0;
   tcpSynProt* current = tcpSynConnections;
-  printf("list\n");
   while(current != 0){
     if (current->srcIp == srcIp){//Can easily be compared since both are stored as ints! :)
       break;
     }
-    printf("IP:%d Count:%d\n",current->srcIp,current->synCount);
     previous = current;
     current = current->next;
   }
 
   if (current == 0){//Source Ip was not found in list
+#if (FWDEC_DEBUG == 1)
     printf("[FWDEC_TCP_PROT] Creating new item in tcp syn list!\n");
+#endif
     tcpSynProt* newEntry = malloc(sizeof(tcpSynProt));
     newEntry->srcIp = srcIp;
     newEntry->synCount = 0;
@@ -332,14 +344,18 @@ int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack){
   }
 
   //Check for too many unjustified syns
-  if (current->synCount >= 5){
+  if (current->synCount >= TCP_MAX_SYNCOUNT){
+#if (FWDEC_DEBUG == 1)
     printf("[FWDEC_TCP_PROT] Blocking blacklisted ip as syn count is too high!\n");
+#endif
     return LWIP_DROP_PACKET;
   }
 
   //Reset count if too much time has passed
-  if((timestamp - current->timestamp) > secondsBeforeReset){
+  if((timestamp - current->timestamp) > TCP_PROTECTION_TIMEOUT){
+#if (FWDEC_DEBUG == 1)
     printf("[FWDEC_TCP_PROT] Resetting timestamp!\n");
+#endif
     current->timestamp = timestamp;
     current->synCount = 0;
   }
@@ -347,7 +363,9 @@ int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack){
   //Update synCount
   current->synCount = ((syn == 0 && ack == 1 && current->synCount == 0)?0:current->synCount+syn-ack); //syn and ack values can only be 1 or 0
 
+#if (FWDEC_DEBUG == 1)
   printf("[FWDEC_TCP_PROT] Keeping tcp packet!\n");
+#endif
   return LWIP_KEEP_PACKET;
 }
 
