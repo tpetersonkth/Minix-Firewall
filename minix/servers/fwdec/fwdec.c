@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <unistd.h>//File handling
 #include <fcntl.h>//File handling flags
+#include <sys/time.h>//System time
 
 
 /* Declare local functions. */
@@ -18,6 +19,7 @@ static uint32_t stringToIp(char *string);
 static void ipToString(uint32_t ip, char *outBuf, int bufLen);
 void loadConfigurations(void);
 int filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort,uint16_t  dstPort);
+int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack);
 void logConfigurations(void);
 void logToLogfile(char* logfile,char* logEntry, int length);
 int packetToString(char* buf, int buflen, uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, uint16_t  dstPort);
@@ -26,6 +28,7 @@ char *itoa(int n);
 /* Global variables */
 static int mode = MODE_NOTSET;
 Rule* rules = 0;
+tcpSynProt* tcpSynConnections = 0;
 
 //itoa
 static int next;
@@ -34,6 +37,7 @@ static char qbuf[8];
 /* Global variables - Configurables*/
 const char *LOGFILE = "/var/log/fwdec";//Where the log file should be placed
 const int defaultMode = MODE_WHITELIST;//Might be exported to config file in the future
+int secondsBeforeReset = 30;//The amount of seconds before a tcp protection entry is reset
 
 /*===========================================================================*
  *		            sef_cb_init_fresh                                        *
@@ -59,6 +63,10 @@ int check_packet(message *m_ptr)
 
   if (proto == IP_PROTO_TCP){
     printf("Recieved SYN: %d and ACK: %d",tcpSyn,tcpAck);
+  }
+
+  if (tcpSynProtection(proto, srcIp, tcpSyn, tcpAck) != LWIP_KEEP_PACKET){
+    return LWIP_DROP_PACKET;
   }
 
   int res = filter(proto, srcIp, dstIp, srcPort, dstPort);
@@ -229,6 +237,7 @@ void loadConfigurations(){
  *				filtering                                                          *
  *===========================================================================*/
 int filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, uint16_t  dstPort){
+  //Filters based on the headers and a set of firewall rules
   //Returns the rule number if the packet matches a rule, otherwise 0
 
   if(mode == MODE_NOTSET){//If configurations hasn't been loaded yet
@@ -243,6 +252,9 @@ int filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, ui
 
 #if (FWDEC_DEBUG == 1)
     printf("[FWDEC|Filter] Proto:%d srcIp:%s srcPort:%d dstIp:%s dstPort:%d\n", proto, srcIpS, srcPort, dstIpS, dstPort);
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    printf("Time: %llu",now.tv_sec);
 #endif
 
   Rule* currRule = rules;
@@ -263,8 +275,83 @@ int filter(uint8_t proto, uint32_t srcIp, uint32_t  dstIp, uint16_t  srcPort, ui
     currRule = currRule->next;
     ruleCount++;
   }
+
   return 0;
 }
+
+int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack){
+  //Keeps track of which ips have sent syn packets and if they have sent acks for these
+  //Blacklists misbehaving clients
+
+  time_t timestamp = time(NULL);
+
+  if (proto != IP_PROTO_TCP){
+    printf("[FWDEC_TCP_PROT] Keeping, protocol is not TCP!\n");
+    return LWIP_KEEP_PACKET;
+  }
+
+  if (syn > 1 || ack > 1){//syn and ack flag should always be 1 or 0
+    //Should never arrive here unless someone has called the function with wrong values for syn or ack
+    logToLogfile((char *)LOGFILE,"WARNING: Received malformed syn and ack values\n",47);
+    printf("[FWDEC_TCP_PROT] Recieved malformed syn and ack values\n");
+    return LWIP_DROP_PACKET;
+  }
+
+  //find the matching entry
+  tcpSynProt* previous = 0;
+  tcpSynProt* current = tcpSynConnections;
+  printf("list\n");
+  while(current != 0){
+    if (current->srcIp == srcIp){//Can easily be compared since both are stored as ints! :)
+      break;
+    }
+    printf("IP:%d Count:%d\n",current->srcIp,current->synCount);
+    previous = current;
+    current = current->next;
+  }
+
+  if (current == 0){//Source Ip was not found in list
+    printf("[FWDEC_TCP_PROT] Creating new item in tcp syn list!\n");
+    tcpSynProt* newEntry = malloc(sizeof(tcpSynProt));
+    newEntry->srcIp = srcIp;
+    newEntry->synCount = 0;
+    newEntry->timestamp = timestamp;
+
+    //Add to list
+    if (tcpSynConnections == 0){//list is empty
+      tcpSynConnections = newEntry;
+    }
+    else if (previous == 0){//list has one element
+      tcpSynConnections->next = newEntry;
+    }
+    else{
+      previous->next = newEntry;
+    }
+
+    current = newEntry;
+  }
+
+  //Check for too many unjustified syns
+  if (current->synCount >= 5){
+    printf("[FWDEC_TCP_PROT] Blocking blacklisted ip as syn count is too high!\n");
+    return LWIP_DROP_PACKET;
+  }
+
+  //Reset count if too much time has passed
+  if((timestamp - current->timestamp) > secondsBeforeReset){
+    printf("[FWDEC_TCP_PROT] Resetting timestamp!\n");
+    current->timestamp = timestamp;
+    current->synCount = 0;
+  }
+
+  //Update synCount
+  current->synCount = ((syn == 0 && ack == 1 && current->synCount == 0)?0:current->synCount+syn-ack); //syn and ack values can only be 1 or 0
+
+  printf("[FWDEC_TCP_PROT] Keeping tcp packet!\n");
+  return LWIP_KEEP_PACKET;
+}
+
+
 
 /*===========================================================================*
  *				logging                                                          *
