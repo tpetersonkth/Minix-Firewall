@@ -85,7 +85,7 @@ The output in the log file will be:
 [Packet Dropped|Not in whitelist]Proto:6 srcIp:10.0.2.2 srcPort:2124 dstIp:10.0.2.15 dstPort:24
 ```
 ## Test 4 Syn flood protection - stateful firewall
-running some of the previous tests you may have encountered the tcp syn flood protection implemented. This is done by counting the number of incomming tcp syn packets,if the number of packets from some ip exceeds a limit (set low for the purposes of testing) under a interval of time (again set low for easier testing) all subsequent tcp packets from that ip will be dropped regardless of destined port. However if some interval of time passes and this limit is not exceeded the record of the number of recieved syn packets will be cleared. To test this one may do the following. Launch qemu with the following settings.
+Running some of the previous tests you may have encountered the tcp syn flood protection implemented. This is done by counting the number of incomming tcp syn packets,if the number of packets from some ip exceeds a limit (set low for the purposes of testing) under a interval of time (again set low for easier testing) all subsequent tcp packets from that ip will be dropped regardless of destined port. However if some interval of time passes and this limit is not exceeded the record of the number of recieved syn packets will be cleared. To test this one may do the following. Launch qemu with the following settings.
 ```bash
 qemu -device e1000,netdev=net0 -netdev user,id=net0,
 hostfwd=tcp::5555-:23,
