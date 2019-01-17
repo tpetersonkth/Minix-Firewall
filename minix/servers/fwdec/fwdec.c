@@ -217,6 +217,7 @@ void loadConfigurations(){
    * only allow DNS messages that uses port 53
    *******************************************/
   rules = dnsRule;
+  dnsRule->next = dnsAnsRule;
   /*****************
    * TEST CASE 1 END
    *****************/
