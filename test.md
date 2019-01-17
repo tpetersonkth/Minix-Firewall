@@ -97,20 +97,20 @@ Then run
 nc localhost 5555
 Test message
 ```
-Which should be interupted almost immediately as no service is recieving anything on that port altough it is open. If debug is enabled after waiting for 30 seconds you should se an output such as
+Which should be interrupted almost immediately as no service is receiving anything on that port altough it is open. If debug is enabled after waiting for 30 seconds you should se an output such as
 ```bash
 [FWDEC_TCP_PROT] Resetting timestamp!
 ```
-indicating that the previous connections made by this ip has been reset. If the connection is now repeated you will see that aditional tcp-syn packets can be recieved by minix without being blocked. Also implemented is decrement to the syn count of any ip given that a tcp-ack has been recieved as this would indicate an established connection. Sadly testing this feature is difficult and has been left out.
+indicating that the previous connections made by this IP has been reset. If the connection is now repeated you will see that aditional tcp-syn packets can be recieved by minix without being blocked. Also implemented is decrement to the syn count of any ip given that a tcp-ack has been recieved as this would indicate an established connection. Sadly testing this feature is difficult and has been left out.
 
-To verify that the firewall correctly blocks incomming packets from ip sources exceeding the allowed limit of syn packets one simply needs to send repeated messages via netcat such as. Trying to establish multiple connections to the same port. for example repeatedly call.
+To verify that the firewall correctly blocks incoming packets from ip sources exceeding the allowed limit of syn packets one simply needs to send repeated messages via netcat such as. Trying to establish multiple connections to the same port. for example repeatedly call.
 ```bash
 nc localhost 5556
 Test message
 ```
-Ofcourse during a relatively time interval (30 seconds) and in the minix terminal messages such as
+Of course during a relatively time interval (30 seconds) and in the MINIX terminal messages such as
 ```bash
 [FWDEC_TCP_PROT] Blocking blacklisted ip as syn count is too high!
 ````
-should be showing now for all tcp-packets. This will block trafic from that particular ip source and as such any tcp packets sent to any port will be dropped, even though they may be allowed by the firewalls rules.
+should be showing now for all tcp-packets. This will block traffic from that particular ip source and as such any tcp packets sent to any port will be dropped, even though they may be allowed by the firewalls rules.
 
