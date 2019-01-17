@@ -97,22 +97,18 @@ Then run
 nc localhost 5555
 Test message
 ```
-and then promptly close the connection as to not exceed the limit (5 for the purposes of testing) as most tcp services resend the syn packet if they do not recieve a response after some time. Hopefully only about 4 packets will have been sent in this time and you should be able to observe the output
+Which should be interupted almost immediately as no service is recieving anything on that port altough it is open. If debug is enabled after waiting for 30 seconds you should se an output such as
 ```bash
 [FWDEC_TCP_PROT] Resetting timestamp!
 ```
 indicating that the previous connections made by this ip has been reset. If the connection is now repeated you will see that aditional tcp-syn packets can be recieved by minix without being blocked. Also implemented is decrement to the syn count of any ip given that a tcp-ack has been recieved as this would indicate an established connection. Sadly testing this feature is difficult and has been left out.
 
-To verify that the firewall correctly blocks incomming packets from ip sources exceeding the allowed limit of syn packets one simply needs to send repeated messages via netcat such as.
+To verify that the firewall correctly blocks incomming packets from ip sources exceeding the allowed limit of syn packets one simply needs to send repeated messages via netcat such as. Trying to establish multiple connections to the same port. for example repeatedly call.
 ```bash
-nc localhost 5555
-Test message
-Test message
-Test message
-Test message
+nc localhost 5556
 Test message
 ```
-Ofcourse during a relatively time interval (15 seconds) and in the minix terminal messages such as
+Ofcourse during a relatively time interval (30 seconds) and in the minix terminal messages such as
 ```bash
 [FWDEC_TCP_PROT] Blocking blacklisted ip as syn count is too high!
 ````
