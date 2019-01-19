@@ -1,5 +1,6 @@
 # Setup
 Compile the code using releasetools and then run Minix using the command that releasetools generates for you. Add the flags for network access inside Minix.
+
 ```bash
 ./releasetools/x86_hdimage.sh
 qemu -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::xxxx-:yyyy
