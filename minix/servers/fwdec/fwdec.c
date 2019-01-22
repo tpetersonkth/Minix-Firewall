@@ -349,7 +349,7 @@ int tcpSynProtection(uint8_t proto, uint32_t srcIp, uint8_t syn, uint8_t ack){
   //Check for too many unjustified syns
   if (current->synCount >= TCP_MAX_SYNCOUNT){
 #if (FWDEC_DEBUG == 1)
-    printf("[FWDEC_TCP_PROT] Blocking blacklisted ip as syn count is too high!\n");
+    printf("[FWDEC_TCP_PROT] Blocking blacklisted IP as syn count is too high!\n");
 #endif
     return LWIP_DROP_PACKET;
   }
