@@ -1,5 +1,6 @@
-# DD2497 Group 7
-## Members
+# Minix Firewall
+This repository contains an extension to the Minix operating system which includes a firewall in the TCP/IP stack. For more information, see the [Report.pdf](https://github.com/tpetersonkth/Minix-Firewall/blob/master/Report.pdf) file in the root directory.
+## Contributors
 * Davis Freimanis (davisf@kth.se)
 * Thomas Peterson (thpeter@kth.se)
 * Emelie Eriksson (emee@kth.se)
