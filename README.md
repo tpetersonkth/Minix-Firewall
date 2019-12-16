@@ -30,4 +30,4 @@ cat /var/log/fwdec
 ```
 
 # Testing
-Testing instructions can be found in the file `test.md`.
+Testing instructions can be found in the file [test.md](https://github.com/tpetersonkth/Minix-Firewall/blob/master/test.md).
